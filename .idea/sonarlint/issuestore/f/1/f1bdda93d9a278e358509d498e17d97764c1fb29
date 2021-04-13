@@ -1,4 +1,4 @@
 
-Mpython:S1481;".Remove the unused local variable "red_health".(«·íÜ8œÿÇ´Œ/
-rpython:S37768"TRefactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.(œŸ²_8ÓÇö´Œ/
-zpython:S1186"[Add a nested comment explaining why this function is empty, or complete the implementation.(¥÷è¼8îÍ³Œ/
+rpython:S3776c"TRefactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.(œŸ²_8ÓÇö´Œ/
+zpython:S1186"[Add a nested comment explaining why this function is empty, or complete the implementation.(¥÷è¼8îÍ³Œ/
+Mpython:S1481f".Remove the unused local variable "red_health".(«·íÜ8œÿÇ´Œ/
