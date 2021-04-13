@@ -77,6 +77,7 @@ def game_quit():
 
 
 def draw_stuff(redship, red_bullet, redscore, ship_health):
+    global MAX_BULLETS
     DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
 
     red_score_text = SCORE_FONT.render(f"Score: {redscore}", True, WHITE)
@@ -95,12 +96,15 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):
 
     if ship_health >= 90:
         DUMMY_WINDOW.blit(ship_health_colour("Green", ship_health), (10, 970))
-    elif ship_health <= 89:
+    elif 89 > ship_health < 60:
         DUMMY_WINDOW.blit(ship_health_colour("Yellow", ship_health), (10, 970))
-    elif ship_health <= 59:
+    elif 59 > ship_health < 30:
         DUMMY_WINDOW.blit(ship_health_colour("Orange", ship_health), (10, 970))
-    elif ship_health <= 29:
+    else:
         DUMMY_WINDOW.blit(ship_health_colour("Red", ship_health), (10, 970))
+
+    # max_bullet_text = SCORE_FONT.render(f"Bullets = {MAX_BULLETS}/50", True, WHITE)
+    # DUMMY_WINDOW.blit(max_bullet_text, (0, 0))
 
     DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x, redship.y))
     DUMMY_WINDOW.blit(LOGO, (60, 0))
@@ -125,12 +129,13 @@ def game_over():
 
 
 def game_clear():
-    global game_active, red, red_score, damaged_ship_health
+    global game_active, red, red_score, damaged_ship_health, asteroid_spawn_rate
     game_active = True
-    asteroids_list.clear()
     red.center = (288, 900)
     red_score = 0
     damaged_ship_health = 50
+    asteroid_spawn_rate = 1200
+    asteroids_list.clear()
 
 
 def active_game():
@@ -168,9 +173,9 @@ def main():
             if events.type == INCREASE_SHIP_HEALTH:
                 damaged_ship_health += 1
 
-            # if events.type == ASTEROID_SPAWN_RATE_PLUS:
-            #     asteroid_spawn_rate //= 2
-            #     pygame.time.set_timer(INCREASE_SHIP_HEALTH, asteroid_spawn_rate)
+            if events.type == ASTEROID_SPAWN_RATE_PLUS:
+                asteroid_spawn_rate //= 2
+                pygame.time.set_timer(SPAWN_ASTEROID, asteroid_spawn_rate)
 
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and not game_active:
                 game_clear()
@@ -245,7 +250,7 @@ asteroid_location = multiples(12, 563, 50)
 # User Event Timers
 pygame.time.set_timer(SPAWN_ASTEROID, asteroid_spawn_rate)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
-pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, 3000)
+pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, 15000)
 
 
 # Asset Files
