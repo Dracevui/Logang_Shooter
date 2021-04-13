@@ -10,21 +10,19 @@ def multiples(num1, num2, mult):
     return newlist
 
 
-def rotate_asteroid(asteroids):
+def rotate_asteroid(asteroids):  # Haven't finished it yet
     pass
 
 
 def create_asteroid():
     random_asteroid_pos = random.choice(asteroid_location)
-    bottom_asteroid = ASTEROID_SURFACE.get_rect(midtop=(random_asteroid_pos, -200))
     top_asteroid = ASTEROID_SURFACE.get_rect(midbottom=(random_asteroid_pos, 10))
-    return bottom_asteroid, top_asteroid
+    return top_asteroid
 
 
 def move_asteroids(asteroids):
     for asteroid in asteroids:
         asteroid.centery += 5
-    # visible_asteroids = [asteroid for asteroid in asteroids if asteroid.top > 1126]
     return asteroids
 
 
@@ -143,7 +141,7 @@ def main():
                 red_bullets.append(bullet)
 
             if events.type == SPAWN_ASTEROID:
-                asteroids_list.extend(create_asteroid())
+                asteroids_list.append(create_asteroid())
                 print(asteroids_list)
 
             if events.type == ASTEROID_HIT:
