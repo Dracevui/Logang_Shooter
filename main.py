@@ -81,9 +81,26 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):
 
     red_score_text = SCORE_FONT.render(f"Score: {redscore}", True, WHITE)
     DUMMY_WINDOW.blit(red_score_text, (420, 970))
-    
-    ship_health_text = SCORE_FONT.render(f"Ship Health: {ship_health}", True, ORANGE)
-    DUMMY_WINDOW.blit(ship_health_text, (10, 970))
+
+    def ship_health_colour(colour_choice, health):
+        if colour_choice == "Green":
+            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}", True, GREEN)
+        elif colour_choice == "Yellow":
+            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}", True, YELLOW)
+        elif colour_choice == "Orange":
+            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}", True, ORANGE)
+        elif colour_choice == "Red":
+            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}", True, RED)
+        return ship_health_text
+
+    if ship_health >= 90:
+        DUMMY_WINDOW.blit(ship_health_colour("Green", ship_health), (10, 970))
+    elif ship_health <= 89:
+        DUMMY_WINDOW.blit(ship_health_colour("Yellow", ship_health), (10, 970))
+    elif ship_health <= 59:
+        DUMMY_WINDOW.blit(ship_health_colour("Orange", ship_health), (10, 970))
+    elif ship_health <= 29:
+        DUMMY_WINDOW.blit(ship_health_colour("Red", ship_health), (10, 970))
 
     DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x, redship.y))
     DUMMY_WINDOW.blit(LOGO, (60, 0))
@@ -128,7 +145,7 @@ def active_game():
 
 
 def main():
-    global damaged_ship_health
+    global damaged_ship_health, asteroid_spawn_rate
     asteroid = pygame.Rect(250, 20, 50, 50)
 
     while running:
@@ -150,6 +167,10 @@ def main():
 
             if events.type == INCREASE_SHIP_HEALTH:
                 damaged_ship_health += 1
+
+            # if events.type == ASTEROID_SPAWN_RATE_PLUS:
+            #     asteroid_spawn_rate //= 2
+            #     pygame.time.set_timer(INCREASE_SHIP_HEALTH, asteroid_spawn_rate)
 
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and not game_active:
                 game_clear()
@@ -180,7 +201,10 @@ WIDTH, HEIGHT = SCREEN_DIMENSIONS
 BORDER = pygame.Rect(0, 0, WIDTH, HEIGHT)
 
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
 ORANGE = (255, 102, 39)
+YELLOW = (255, 255, 0)
+GREEN = (0, 255, 0)
 
 FPS = 60
 VELOCITY = 10
@@ -201,6 +225,7 @@ pygame.display.set_icon(ICON)
 ASTEROID_HIT = pygame.USEREVENT + 1
 SPAWN_ASTEROID = pygame.USEREVENT + 2
 INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
+ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 
 
 # Game Variables
@@ -210,12 +235,17 @@ red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
 
+asteroid_spawn_rate = 1200
+
 damaged_ship_health = 50
 
 asteroids_list = []
 asteroid_location = multiples(12, 563, 50)
-pygame.time.set_timer(SPAWN_ASTEROID, 1200)
+
+# User Event Timers
+pygame.time.set_timer(SPAWN_ASTEROID, asteroid_spawn_rate)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
+pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, 3000)
 
 
 # Asset Files
