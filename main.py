@@ -46,7 +46,7 @@ def check_asteroid_collision(asteroids, bullets, spaceship):
                 bullets.remove(bullet)
                 LASER_HIT.play()
         if asteroid.top > BORDER.bottom:
-            damaged_ship_health -= 1
+            damaged_ship_health -= 2
             asteroids.remove(asteroid)
     return True
 
@@ -130,6 +130,7 @@ def active_game():
 
 
 def main():
+    global damaged_ship_health
     asteroid = pygame.Rect(250, 20, 50, 50)
 
     while running:
@@ -148,6 +149,9 @@ def main():
             if events.type == ASTEROID_HIT:
                 for asteroid in asteroids_list:
                     asteroids_list.remove(asteroid)
+
+            if events.type == INCREASE_SHIP_HEALTH:
+                damaged_ship_health += 1
 
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and not game_active:
                 game_clear()
@@ -198,6 +202,7 @@ pygame.display.set_icon(ICON)
 # User Events
 ASTEROID_HIT = pygame.USEREVENT + 1
 SPAWN_ASTEROID = pygame.USEREVENT + 2
+INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
 
 
 # Game Variables
@@ -212,6 +217,7 @@ damaged_ship_health = 50
 asteroids_list = []
 asteroid_location = multiples(12, 563, 50)
 pygame.time.set_timer(SPAWN_ASTEROID, 1200)
+pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
 
 
 # Asset Files
