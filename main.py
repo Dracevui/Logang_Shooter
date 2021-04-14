@@ -122,6 +122,27 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevan
     pygame.display.update()
 
 
+def spawn_asteroid(rate):  # Custom User Event that spawns in asteroids at a set rate
+    pygame.time.set_timer(SPAWN_ASTEROID, rate)
+    return rate
+
+
+def score_display():  # Writes out high score to the game window
+    hi_score_surface = SCORE_FONT.render(f"High Score: {int(high_score)}", True, WHITE)
+    hi_score_rect = hi_score_surface.get_rect(center=(288, 960))
+    DUMMY_WINDOW.blit(hi_score_surface, hi_score_rect)
+
+    score_surface = SCORE_FONT.render(f"Current Score: {int(red_score)}", True, WHITE)
+    score_rect = score_surface.get_rect(center=(288, 920))
+    DUMMY_WINDOW.blit(score_surface, score_rect)
+
+
+def update_score(score, hi_score):  # Handles the logic of updating the high score
+    if score > hi_score:
+        hi_score = score
+    return hi_score
+
+
 def you_win():  # Displays the victory screen
     global game_active
     if damaged_ship_health >= 100:
@@ -139,13 +160,18 @@ def scale_window():  # Scales the game window and assets to fit the user's monit
 
 
 def game_over():  # Displays the game over screen
-    global game_active, red
+    global game_active, red, asteroids_list, high_score
     if not game_active:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         DUMMY_WINDOW.blit(LOGO, (60, 25))
         DUMMY_WINDOW.blit(YOU_LOSE_SURFACE, (6, 292))
         DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, (6, 712))
+
+        high_score = update_score(red_score, high_score)
+        score_display()
+
         red.center = (288, 900)
+        asteroids_list.clear()
 
 
 def ship_death(health):  # Causes the game session to end once the ship health reaches 0%
@@ -156,12 +182,11 @@ def ship_death(health):  # Causes the game session to end once the ship health r
 
 
 def game_clear():  # Clears the relevant variables to start a new game session
-    global game_active, red, red_score, damaged_ship_health, asteroid_spawn_rate, asteroids_list, red_bullets
+    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets
     game_active = True
     red_score = 0
     damaged_ship_health = 50
     asteroid_spawn_rate = 1200
-    asteroids_list.clear()
     red_bullets.clear()
 
 
@@ -203,7 +228,7 @@ def main():  # The main game loop that handles the majority of the game logic
 
             if events.type == ASTEROID_SPAWN_RATE_PLUS and game_active:
                 asteroid_spawn_rate //= 2
-                pygame.time.set_timer(SPAWN_ASTEROID, asteroid_spawn_rate)
+                spawn_asteroid(asteroid_spawn_rate)
 
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and not game_active:
                 game_clear()
@@ -268,17 +293,18 @@ game_active = True
 red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
+high_score = 0
 
 asteroid_spawn_rate = 1200
 increased_spawn_rate = 15000
 
-damaged_ship_health = 10
+damaged_ship_health = 50
 
 asteroids_list = []
 asteroid_location = multiples(12, 563, 50)
 
 # User Event Timers
-pygame.time.set_timer(SPAWN_ASTEROID, asteroid_spawn_rate)
+spawn_asteroid(asteroid_spawn_rate)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
 pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, increased_spawn_rate)
 
