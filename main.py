@@ -36,16 +36,16 @@ def check_asteroid_collision(asteroids, bullets, spaceship):
     global red_score, damaged_ship_health
     for asteroid in asteroids:
         if spaceship.colliderect(asteroid):
-            DEATH_SOUND.play()
+            pygame.mixer.Channel(1).play(DEATH_SOUND)
             return False
         for bullet in bullets:
             if bullet.colliderect(asteroid):
                 red_score += 1
                 asteroids.remove(asteroid)
                 bullets.remove(bullet)
-                LASER_HIT.play()
+                pygame.mixer.Channel(2).play(LASER_HIT)
         if asteroid.top > BORDER.bottom:
-            SHIP_DAMAGE.play()
+            pygame.mixer.Channel(0).play(SHIP_DAMAGE)
             damaged_ship_health -= 2
             asteroids.remove(asteroid)
     return True
@@ -161,7 +161,6 @@ def main():
     asteroid = ASTEROID_RECT
 
     while running:
-        # GAME_MUSIC.play()
         for events in pygame.event.get():
             if events.type == pygame.QUIT:
                 game_quit()
@@ -179,10 +178,10 @@ def main():
                 for asteroid in asteroids_list:
                     asteroids_list.remove(asteroid)
 
-            if events.type == INCREASE_SHIP_HEALTH:
+            if events.type == INCREASE_SHIP_HEALTH and game_active:
                 damaged_ship_health += 1
 
-            if events.type == ASTEROID_SPAWN_RATE_PLUS:
+            if events.type == ASTEROID_SPAWN_RATE_PLUS and game_active:
                 asteroid_spawn_rate //= 2
                 pygame.time.set_timer(SPAWN_ASTEROID, asteroid_spawn_rate)
 
@@ -279,8 +278,10 @@ LASER_HIT = pygame.mixer.Sound("assets/Grenade+1.mp3")
 
 SHIP_DAMAGE = pygame.mixer.Sound("assets/ship_damage.wav")
 DEATH_SOUND = pygame.mixer.Sound("assets/dead.wav")
-GAME_MUSIC = pygame.mixer.Sound("assets/game_music.wav")
+
+GAME_MUSIC = pygame.mixer.Sound("assets/bgm.wav")
 pygame.mixer.Sound.set_volume(GAME_MUSIC, 0.1)
+GAME_MUSIC.play(-1)
 
 LOGO = pygame.image.load("assets/logo.png")
 
