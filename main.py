@@ -122,6 +122,16 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):
     pygame.display.update()
 
 
+def you_win():
+    global game_active
+    if damaged_ship_health >= 100:
+        game_active = False
+        DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
+        DUMMY_WINDOW.blit(LOGO, (60, 25))
+        DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
+        DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, (6, 712))
+
+
 def scale_window():
     frame = pygame.transform.scale(DUMMY_WINDOW, SCREEN_DIMENSIONS)
     WINDOW.blit(frame, frame.get_rect())
@@ -132,6 +142,9 @@ def game_over():
     global game_active, red
     if not game_active:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
+        DUMMY_WINDOW.blit(LOGO, (60, 25))
+        DUMMY_WINDOW.blit(YOU_LOSE_SURFACE, (6, 292))
+        DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, (6, 712))
         red.center = (288, 900)
 
 
@@ -188,18 +201,13 @@ def main():
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and not game_active:
                 game_clear()
 
-            game_over()
-
         draw_stuff(red, red_bullets, red_score, damaged_ship_health)
+
+        game_over()
 
         active_game()
 
-        if damaged_ship_health >= 100:
-            game_active = False
-            DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
-            DUMMY_WINDOW.blit(LOGO, (60, 25))
-            DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
-            DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, (6, 712))
+        you_win()
 
         keys_pressed = pygame.key.get_pressed()
         red_handle_movement(keys_pressed, red)
@@ -290,6 +298,7 @@ GAME_MUSIC.play(-1)
 
 LOGO = pygame.image.load("assets/logo.png")
 YOU_WIN_SURFACE = pygame.image.load("assets/you_win.png")
+YOU_LOSE_SURFACE = pygame.image.load("assets/game_over.png")
 SPACEBAR_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
 
 ICON = pygame.image.load("assets/icon.png")
