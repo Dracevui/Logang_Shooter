@@ -113,7 +113,7 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):
     DUMMY_WINDOW.blit(current_spawn_rate_text, (40, 250))
 
     DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x, redship.y))
-    DUMMY_WINDOW.blit(LOGO, (60, 0))
+    DUMMY_WINDOW.blit(LOGO, (60, 25))
 
     for bullet in red_bullet:
         pygame.draw.rect(DUMMY_WINDOW, WHITE, bullet)
@@ -129,8 +129,8 @@ def scale_window():
 
 
 def game_over():
-    global game_active, red
-    if not game_active:
+    global game_active, red, r_u_winning
+    if not game_active and not r_u_winning:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         red.center = (288, 900)
 
@@ -157,7 +157,7 @@ def active_game():
 
 
 def main():
-    global damaged_ship_health, asteroid_spawn_rate
+    global damaged_ship_health, asteroid_spawn_rate, game_active
     asteroid = ASTEROID_RECT
 
     while running:
@@ -193,6 +193,13 @@ def main():
         draw_stuff(red, red_bullets, red_score, damaged_ship_health)
 
         active_game()
+
+        if damaged_ship_health >= 100:
+            game_active = False
+            DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
+            DUMMY_WINDOW.blit(LOGO, (60, 25))
+            DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
+            DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, (6, 712))
 
         keys_pressed = pygame.key.get_pressed()
         red_handle_movement(keys_pressed, red)
@@ -231,8 +238,6 @@ CLOCK = pygame.time.Clock()
 SCORE_FONT = pygame.font.SysFont("comic_sans", 40, True)
 
 pygame.display.set_caption("Logang Shooter")
-ICON = pygame.image.load("assets/icon.png")
-pygame.display.set_icon(ICON)
 
 # User Events
 ASTEROID_HIT = pygame.USEREVENT + 1
@@ -243,6 +248,7 @@ ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 # Game Variables
 running = True
 game_active = True
+r_u_winning = False
 red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
@@ -284,6 +290,11 @@ pygame.mixer.Sound.set_volume(GAME_MUSIC, 0.1)
 GAME_MUSIC.play(-1)
 
 LOGO = pygame.image.load("assets/logo.png")
+YOU_WIN_SURFACE = pygame.image.load("assets/you_win.png")
+SPACEBAR_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
+
+ICON = pygame.image.load("assets/icon.png")
+pygame.display.set_icon(ICON)
 
 # Start of the main game...
 main()
