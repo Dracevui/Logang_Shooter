@@ -158,7 +158,8 @@ def main():
             if events.type == pygame.QUIT:
                 game_quit()
 
-            if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
+            if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS \
+                    and game_active:
                 bullet = pygame.Rect(red.x + red.width // 2, red.y, 5, 10)
                 red_bullets.append(bullet)
 
@@ -188,7 +189,7 @@ def main():
 
         keys_pressed = pygame.key.get_pressed()
         red_handle_movement(keys_pressed, red)
-        
+
         handle_bullets(red_bullets, asteroid)
 
         scale_window()
@@ -205,6 +206,7 @@ DUMMY_WINDOW = pygame.Surface((576, 1024))
 WIDTH, HEIGHT = SCREEN_DIMENSIONS
 BORDER = pygame.Rect(0, 0, WIDTH, HEIGHT)
 
+# Colours
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 ORANGE = (255, 102, 39)
@@ -225,13 +227,11 @@ pygame.display.set_caption("Logang Shooter")
 ICON = pygame.image.load("assets/icon.png")
 pygame.display.set_icon(ICON)
 
-
 # User Events
 ASTEROID_HIT = pygame.USEREVENT + 1
 SPAWN_ASTEROID = pygame.USEREVENT + 2
 INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
 ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
-
 
 # Game Variables
 running = True
@@ -251,7 +251,6 @@ asteroid_location = multiples(12, 563, 50)
 pygame.time.set_timer(SPAWN_ASTEROID, asteroid_spawn_rate)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
 pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, 15000)
-
 
 # Asset Files
 BACKGROUND_SURFACE = pygame.transform.scale((pygame.image.load("assets/space.png")), (576, 1024))
