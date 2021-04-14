@@ -85,20 +85,20 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):
 
     def ship_health_colour(colour_choice, health):
         if colour_choice == "Green":
-            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}", True, GREEN)
+            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, GREEN)
         elif colour_choice == "Yellow":
-            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}", True, YELLOW)
+            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, YELLOW)
         elif colour_choice == "Orange":
-            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}", True, ORANGE)
+            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, ORANGE)
         elif colour_choice == "Red":
-            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}", True, RED)
+            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, RED)
         return ship_health_text
 
     if ship_health >= 90:
         DUMMY_WINDOW.blit(ship_health_colour("Green", ship_health), (10, 970))
-    elif 89 > ship_health < 60:
+    elif 89 >= ship_health >= 60:
         DUMMY_WINDOW.blit(ship_health_colour("Yellow", ship_health), (10, 970))
-    elif 59 > ship_health < 30:
+    elif 59 >= ship_health >= 30:
         DUMMY_WINDOW.blit(ship_health_colour("Orange", ship_health), (10, 970))
     else:
         DUMMY_WINDOW.blit(ship_health_colour("Red", ship_health), (10, 970))
@@ -123,19 +123,20 @@ def scale_window():
 
 
 def game_over():
-    global game_active
+    global game_active, red
     if not game_active:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
+        red.center = (288, 900)
 
 
 def game_clear():
-    global game_active, red, red_score, damaged_ship_health, asteroid_spawn_rate
+    global game_active, red, red_score, damaged_ship_health, asteroid_spawn_rate, asteroids_list, red_bullets
     game_active = True
-    red.center = (288, 900)
     red_score = 0
     damaged_ship_health = 50
     asteroid_spawn_rate = 1200
     asteroids_list.clear()
+    red_bullets.clear()
 
 
 def active_game():
@@ -151,7 +152,7 @@ def active_game():
 
 def main():
     global damaged_ship_health, asteroid_spawn_rate
-    asteroid = pygame.Rect(250, 20, 50, 50)
+    asteroid = ASTEROID_RECT
 
     while running:
         for events in pygame.event.get():
