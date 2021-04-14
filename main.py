@@ -103,14 +103,14 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):
     else:
         DUMMY_WINDOW.blit(ship_health_colour("Red", ship_health), (10, 970))
 
-    # max_bullet_text = SCORE_FONT.render(f"Bullets = {MAX_BULLETS}/50", True, WHITE)
-    # DUMMY_WINDOW.blit(max_bullet_text, (0, 0))
+    max_bullet_text = SCORE_FONT.render(f"Bullets = {len(red_bullets)}/{MAX_BULLETS}", True, WHITE)
+    DUMMY_WINDOW.blit(max_bullet_text, (0, 0))
 
     DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x, redship.y))
     DUMMY_WINDOW.blit(LOGO, (60, 0))
 
     for bullet in red_bullet:
-        pygame.draw.rect(DUMMY_WINDOW, (255, 255, 255), bullet)
+        pygame.draw.rect(DUMMY_WINDOW, WHITE, bullet)
         # DUMMY_WINDOW.blit(LASER_BLAST, RED_SPACESHIP.get_rect().top, bullet)
 
     pygame.display.update()
@@ -214,7 +214,7 @@ GREEN = (0, 255, 0)
 FPS = 60
 VELOCITY = 10
 BULLET_VELOCITY = 7
-MAX_BULLETS = 50
+MAX_BULLETS = 10
 
 SPACESHIP_WIDTH, SPACESHIP_HEIGHT = 65, 50
 CLOCK = pygame.time.Clock()
