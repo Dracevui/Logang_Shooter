@@ -45,7 +45,7 @@ def check_asteroid_collision(asteroids, bullets, spaceship):
                 bullets.remove(bullet)
                 pygame.mixer.Channel(2).play(LASER_HIT)
         if asteroid.top > BORDER.bottom:
-            pygame.mixer.Channel(0).play(SHIP_DAMAGE)
+            pygame.mixer.Channel(3).play(SHIP_DAMAGE)
             damaged_ship_health -= 2
             asteroids.remove(asteroid)
     return True
@@ -129,8 +129,8 @@ def scale_window():
 
 
 def game_over():
-    global game_active, red, r_u_winning
-    if not game_active and not r_u_winning:
+    global game_active, red
+    if not game_active:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         red.center = (288, 900)
 
@@ -248,7 +248,6 @@ ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 # Game Variables
 running = True
 game_active = True
-r_u_winning = False
 red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
