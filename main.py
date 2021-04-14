@@ -4,35 +4,35 @@ import random
 import math
 
 
-def multiples(num1, num2, mult):
+def multiples(num1, num2, mult):  # Creates a numbered list with a custom range and multiple jump
     listz = [*range(num1, num2)]
     newlist = listz[::mult]
     return newlist
 
 
-def rotate_asteroid():
+def rotate_asteroid():  # TODO fix this function lolol
     new_asteroid = pygame.transform.rotate(ASTEROID_SURFACE, VELOCITY * 2.5)
     return new_asteroid
 
 
-def create_asteroid():
+def create_asteroid():  # Creates an asteroid in a random position and places it in the asteroid list
     random_asteroid_pos = random.choice(asteroid_location)
     top_asteroid = ASTEROID_SURFACE.get_rect(midbottom=(random_asteroid_pos, 10))
     return top_asteroid
 
 
-def move_asteroids(asteroids):
+def move_asteroids(asteroids):  # Moves the asteroids down the screen
     for asteroid in asteroids:
         asteroid.centery += 5
     return asteroids
 
 
-def draw_asteroids(asteroids):
+def draw_asteroids(asteroids):  # Draws the asteroids onto the game screen
     for asteroid in asteroids:
         DUMMY_WINDOW.blit(ASTEROID_SURFACE, asteroid)
 
 
-def check_asteroid_collision(asteroids, bullets, spaceship):
+def check_asteroid_collision(asteroids, bullets, spaceship):  # Handles the asteroid collision physics
     global red_score, damaged_ship_health
     for asteroid in asteroids:
         if spaceship.colliderect(asteroid):
@@ -51,7 +51,7 @@ def check_asteroid_collision(asteroids, bullets, spaceship):
     return True
 
 
-def handle_bullets(red_bullet, asteroid):
+def handle_bullets(red_bullet, asteroid):  # Handles the bullet collision physics and ammunition count
     for bullet in red_bullet:
         bullet.y -= BULLET_VELOCITY
         if asteroid.colliderect(bullet):
@@ -60,7 +60,7 @@ def handle_bullets(red_bullet, asteroid):
             red_bullet.remove(bullet)
 
 
-def red_handle_movement(keys_press, redship):
+def red_handle_movement(keys_press, redship):  # Moves the spaceship according to user input
     global game_active
     if game_active:
         if keys_press[pygame.K_LEFT] and redship.x + VELOCITY > 0:  # LEFT
@@ -73,12 +73,12 @@ def red_handle_movement(keys_press, redship):
             redship.y += VELOCITY
 
 
-def game_quit():
+def game_quit():  # Quits the game when prompted
     pygame.quit()
     sys.exit()
 
 
-def draw_stuff(redship, red_bullet, redscore, ship_health):
+def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevant assets onscreen
     global MAX_BULLETS, asteroid_spawn_rate
     DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
 
@@ -122,7 +122,7 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):
     pygame.display.update()
 
 
-def you_win():
+def you_win():  # Displays the victory screen
     global game_active
     if damaged_ship_health >= 100:
         game_active = False
@@ -132,13 +132,13 @@ def you_win():
         DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, (6, 712))
 
 
-def scale_window():
+def scale_window():  # Scales the game window and assets to fit the user's monitor dimensions
     frame = pygame.transform.scale(DUMMY_WINDOW, SCREEN_DIMENSIONS)
     WINDOW.blit(frame, frame.get_rect())
     pygame.display.flip()
 
 
-def game_over():
+def game_over():  # Displays the game over screen
     global game_active, red
     if not game_active:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
@@ -148,7 +148,14 @@ def game_over():
         red.center = (288, 900)
 
 
-def game_clear():
+def ship_death(health):  # Causes the game session to end once the ship health reaches 0%
+    global game_active
+    if health <= 0:
+        game_active = False
+        game_over()
+
+
+def game_clear():  # Clears the relevant variables to start a new game session
     global game_active, red, red_score, damaged_ship_health, asteroid_spawn_rate, asteroids_list, red_bullets
     game_active = True
     red_score = 0
@@ -158,7 +165,7 @@ def game_clear():
     red_bullets.clear()
 
 
-def active_game():
+def active_game():  # Handles the relevant variables when a game is in session
     global game_active, asteroids_list, red
     if game_active:
         # Spaceship
@@ -169,7 +176,7 @@ def active_game():
         draw_asteroids(asteroids_list)
 
 
-def main():
+def main():  # The main game loop that handles the majority of the game logic
     global damaged_ship_health, asteroid_spawn_rate, game_active
     asteroid = ASTEROID_RECT
 
@@ -202,6 +209,8 @@ def main():
                 game_clear()
 
         draw_stuff(red, red_bullets, red_score, damaged_ship_health)
+
+        ship_death(damaged_ship_health)
 
         game_over()
 
@@ -263,7 +272,7 @@ red_score = 0
 asteroid_spawn_rate = 1200
 increased_spawn_rate = 15000
 
-damaged_ship_health = 50
+damaged_ship_health = 10
 
 asteroids_list = []
 asteroid_location = multiples(12, 563, 50)
