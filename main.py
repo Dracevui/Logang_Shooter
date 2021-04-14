@@ -10,8 +10,9 @@ def multiples(num1, num2, mult):
     return newlist
 
 
-def rotate_asteroid(asteroids):  # Haven't finished it yet
-    pass
+def rotate_asteroid():
+    new_asteroid = pygame.transform.rotate(ASTEROID_SURFACE, VELOCITY * 2.5)
+    return new_asteroid
 
 
 def create_asteroid():
@@ -44,6 +45,7 @@ def check_asteroid_collision(asteroids, bullets, spaceship):
                 bullets.remove(bullet)
                 LASER_HIT.play()
         if asteroid.top > BORDER.bottom:
+            SHIP_DAMAGE.play()
             damaged_ship_health -= 2
             asteroids.remove(asteroid)
     return True
@@ -77,7 +79,7 @@ def game_quit():
 
 
 def draw_stuff(redship, red_bullet, redscore, ship_health):
-    global MAX_BULLETS
+    global MAX_BULLETS, asteroid_spawn_rate
     DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
 
     red_score_text = SCORE_FONT.render(f"Score: {redscore}", True, WHITE)
@@ -105,6 +107,10 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):
 
     max_bullet_text = SCORE_FONT.render(f"Bullets = {len(red_bullets)}/{MAX_BULLETS}", True, WHITE)
     DUMMY_WINDOW.blit(max_bullet_text, (0, 0))
+    
+    current_spawn_rate_text = SCORE_FONT.render(
+        f"Current Rate: every {asteroid_spawn_rate / 1000} seconds", True, WHITE)
+    DUMMY_WINDOW.blit(current_spawn_rate_text, (40, 250))
 
     DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x, redship.y))
     DUMMY_WINDOW.blit(LOGO, (60, 0))
@@ -155,6 +161,7 @@ def main():
     asteroid = ASTEROID_RECT
 
     while running:
+        # GAME_MUSIC.play()
         for events in pygame.event.get():
             if events.type == pygame.QUIT:
                 game_quit()
@@ -242,6 +249,7 @@ red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
 
 asteroid_spawn_rate = 1200
+increased_spawn_rate = 15000
 
 damaged_ship_health = 50
 
@@ -251,7 +259,7 @@ asteroid_location = multiples(12, 563, 50)
 # User Event Timers
 pygame.time.set_timer(SPAWN_ASTEROID, asteroid_spawn_rate)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
-pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, 15000)
+pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, increased_spawn_rate)
 
 # Asset Files
 BACKGROUND_SURFACE = pygame.transform.scale((pygame.image.load("assets/space.png")), (576, 1024))
@@ -268,7 +276,11 @@ LASER_BLAST = pygame.transform.scale((pygame.image.load("assets/laser_blast.png"
 LASER_BLAST_RECT = LASER_BLAST.get_rect()
 LASER_SOUND = pygame.mixer.Sound("assets/Gun+Silencer.mp3")
 LASER_HIT = pygame.mixer.Sound("assets/Grenade+1.mp3")
-DEATH_SOUND = pygame.mixer.Sound("assets/sfx_hit.wav")
+
+SHIP_DAMAGE = pygame.mixer.Sound("assets/ship_damage.wav")
+DEATH_SOUND = pygame.mixer.Sound("assets/dead.wav")
+GAME_MUSIC = pygame.mixer.Sound("assets/game_music.wav")
+pygame.mixer.Sound.set_volume(GAME_MUSIC, 0.1)
 
 LOGO = pygame.image.load("assets/logo.png")
 
