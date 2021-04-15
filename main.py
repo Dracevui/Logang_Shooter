@@ -168,9 +168,9 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevan
     DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x, redship.y))
     DUMMY_WINDOW.blit(LOGO, (60, 25))
 
+    # Bullets
     for bullet in red_bullet:
-        pygame.draw.rect(DUMMY_WINDOW, WHITE, bullet)
-        # DUMMY_WINDOW.blit(LASER_BLAST, RED_SPACESHIP.get_rect().top, bullet)
+        DUMMY_WINDOW.blit(LASER_BLAST, bullet)
 
     pygame.display.update()
 
@@ -268,7 +268,7 @@ def main():  # The main game loop that handles the majority of the game logic
                 game_quit()
 
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
-                bullet = pygame.Rect(red.x + red.width // 2, red.y, 5, 10)
+                bullet = pygame.Rect(red.x + red.width // 2 - 8, red.y - 20, 17, 70)
                 red_bullets.append(bullet)
                 LASER_SOUND.play()
 
@@ -376,7 +376,7 @@ RED_SPACESHIP_RECT = RED_SPACESHIP.get_rect(center=(288, 900))
 ASTEROID_SURFACE = pygame.transform.scale((pygame.image.load("assets/asteroid.png")).convert_alpha(), (50, 50))
 ASTEROID_RECT = ASTEROID_SURFACE.get_rect()
 
-LASER_BLAST = pygame.transform.scale((pygame.image.load("assets/laser_blast.png")).convert_alpha(), (50, 50))
+LASER_BLAST = pygame.transform.scale((pygame.image.load("assets/laser_blast.png")).convert_alpha(), (17, 70))
 LASER_BLAST_RECT = LASER_BLAST.get_rect()
 
 # Audio files
