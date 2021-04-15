@@ -78,6 +78,47 @@ def game_quit():  # Quits the game when prompted
     sys.exit()
 
 
+def instructions_screen_1():  # Displays instructions to game screen
+    instruction_state = True
+    while instruction_state:
+        DUMMY_WINDOW.fill(WHITE)
+        for events in pygame.event.get():
+            if events.type == pygame.KEYDOWN:
+                instruction_state = False
+            if events.type == pygame.QUIT:
+                game_quit()
+        DUMMY_WINDOW.blit(INTRO_1, (0, 0))
+        scale_window()
+
+
+def instructions_screen_2():  # Displays instructions to game screen
+    instruction_state = True
+    while instruction_state:
+        DUMMY_WINDOW.fill(WHITE)
+        for events in pygame.event.get():
+            if events.type == pygame.KEYDOWN:
+                instruction_state = False
+            if events.type == pygame.QUIT:
+                game_quit()
+        DUMMY_WINDOW.blit(INTRO_2, (0, 0))
+        scale_window()
+
+
+def instructions_screen_3():  # Displays instructions to game screen
+    global running
+    instruction_state = True
+    while instruction_state:
+        DUMMY_WINDOW.fill(WHITE)
+        for events in pygame.event.get():
+            if events.type == pygame.KEYDOWN:
+                instruction_state = False
+                running = True
+            if events.type == pygame.QUIT:
+                game_quit()
+        DUMMY_WINDOW.blit(INTRO_3, (0, 0))
+        scale_window()
+
+
 def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevant assets onscreen
     global MAX_BULLETS, asteroid_spawn_rate
     DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
@@ -181,13 +222,14 @@ def ship_death(health):  # Causes the game session to end once the ship health r
 
 
 def game_clear():  # Clears the relevant variables to start a new game session
-    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets, asteroids_list
+    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets, asteroids_list, running
     game_active = True
     red_score = 0
     damaged_ship_health = 50
     asteroid_spawn_rate = 1200
     red_bullets.clear()
     asteroids_list.clear()
+    running = True
 
 
 def active_game():  # Handles the relevant variables when a game is in session
@@ -288,7 +330,7 @@ INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
 ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 
 # Game Variables
-running = True
+running = False
 game_active = True
 red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
@@ -336,10 +378,21 @@ YOU_WIN_SURFACE = pygame.image.load("assets/you_win.png")
 YOU_LOSE_SURFACE = pygame.image.load("assets/game_over.png")
 SPACEBAR_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
 
+# Instruction Files
+INTRO_1 = pygame.image.load("assets/intro_1.png")
+INTRO_2 = pygame.image.load("assets/intro_2.png")
+INTRO_3 = pygame.image.load("assets/intro_3.png")
+
 ICON = pygame.image.load("assets/icon.png")
 pygame.display.set_icon(ICON)
 
 # Start of the main game...
+instructions_screen_1()
+
+instructions_screen_2()
+
+instructions_screen_3()
+
 main()
 
 if __name__ == '__main__':
