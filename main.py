@@ -10,9 +10,14 @@ def multiples(num1, num2, mult):  # Creates a numbered list with a custom range 
     return newlist
 
 
-def rotate_asteroid():  # TODO fix this function lolol
-    new_asteroid = pygame.transform.rotate(ASTEROID_SURFACE, VELOCITY * 2.5)
-    return new_asteroid
+def angle_choice(angle_listicle):
+    angle_dex = random.choice(angle_listicle)
+    return angle_dex
+
+
+def rotate_asteroid(surface, angles):
+    rotated_asteroid = pygame.transform.rotozoom(surface, angles, 1)
+    return rotated_asteroid
 
 
 def create_asteroid():  # Creates an asteroid in a random position and places it in the asteroid list
@@ -28,8 +33,10 @@ def move_asteroids(asteroids):  # Moves the asteroids down the screen
 
 
 def draw_asteroids(asteroids):  # Draws the asteroids onto the game screen
+    global angle
     for asteroid in asteroids:
-        DUMMY_WINDOW.blit(ASTEROID_SURFACE, asteroid)
+        rotated_asteroid = rotate_asteroid(ASTEROID_SURFACE, angle)
+        DUMMY_WINDOW.blit(rotated_asteroid, asteroid)
 
 
 def check_asteroid_collision(asteroids, bullets, spaceship):  # Handles the asteroid collision physics
@@ -115,6 +122,14 @@ def instructions_screen_3():  # Displays instructions to game screen
                 game_quit()
         DUMMY_WINDOW.blit(INTRO_3, (0, 0))
         scale_window()
+
+
+def instructions_screen():  # # Displays all the instructions to the game screen
+    instructions_screen_1()
+
+    instructions_screen_2()
+
+    instructions_screen_3()
 
 
 def start_screen():
@@ -260,7 +275,7 @@ def active_game():  # Handles the relevant variables when a game is in session
 
 
 def main():  # The main game loop that handles the majority of the game logic
-    global damaged_ship_health, asteroid_spawn_rate, game_active
+    global damaged_ship_health, asteroid_spawn_rate, game_active, angle
     asteroid = ASTEROID_RECT
 
     while running:
@@ -269,6 +284,7 @@ def main():  # The main game loop that handles the majority of the game logic
                 game_quit()
 
             if game_active:
+                angle += 15
                 if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
                     bullet = pygame.Rect(red.x - 9, red.y - 20, 17, 70)
                     red_bullets.append(bullet)
@@ -321,7 +337,6 @@ DUMMY_WINDOW = pygame.Surface((576, 1024))
 WIDTH, HEIGHT = SCREEN_DIMENSIONS
 WINDOW_WIDTH = WINDOW.get_width()
 WINDOW_HEIGHT = WINDOW.get_height()
-BORDER = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 
 # Colours
 WHITE = (255, 255, 255)
@@ -406,6 +421,9 @@ red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
 high_score = 0
+angle = 0
+angle_list = multiples(0, 360, 20)
+angle_index = angle_choice(angle_list)
 
 damaged_ship_health = 50
 
@@ -413,11 +431,7 @@ asteroids_list = []
 asteroid_location = multiples(12, 563, 50)
 
 # Start of the main game...
-instructions_screen_1()
-
-instructions_screen_2()
-
-instructions_screen_3()
+instructions_screen()
 
 start_screen()
 
