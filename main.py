@@ -267,14 +267,19 @@ def main():  # The main game loop that handles the majority of the game logic
             if events.type == pygame.QUIT:
                 game_quit()
 
-            if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
-                bullet = pygame.Rect(red.x + red.width // 2 - 8, red.y - 20, 17, 70)
-                red_bullets.append(bullet)
-                LASER_SOUND.play()
+            if game_active:
+                if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
+                    bullet = pygame.Rect(red.x + red.width // 2 - 8, red.y - 20, 17, 70)
+                    red_bullets.append(bullet)
+                    LASER_SOUND.play()
 
-            if events.type == SPAWN_ASTEROID:
-                asteroids_list.append(create_asteroid())
-                print(asteroids_list)
+                if events.type == SPAWN_ASTEROID:
+                    asteroids_list.append(create_asteroid())
+                    print(asteroids_list)
+
+                if events.type == ASTEROID_SPAWN_RATE_PLUS:
+                    asteroid_spawn_rate //= 2
+                    spawn_asteroid(asteroid_spawn_rate)
 
             if events.type == ASTEROID_HIT:
                 for asteroid in asteroids_list:
@@ -282,10 +287,6 @@ def main():  # The main game loop that handles the majority of the game logic
 
             if events.type == INCREASE_SHIP_HEALTH:
                 damaged_ship_health += 1
-
-            if events.type == ASTEROID_SPAWN_RATE_PLUS:
-                asteroid_spawn_rate //= 2
-                spawn_asteroid(asteroid_spawn_rate)
 
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and not game_active:
                 game_clear()
