@@ -122,7 +122,7 @@ def start_screen():
     while not running:
         DUMMY_WINDOW.fill(WHITE)
         for events in pygame.event.get():
-            if events.type == pygame.KEYDOWN:
+            if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE:
                 running = True
             if events.type == pygame.QUIT:
                 game_quit()
@@ -197,13 +197,16 @@ def update_score(score, hi_score):  # Handles the logic of updating the high sco
 
 
 def you_win():  # Displays the victory screen
-    global game_active
+    global game_active, high_score
     if damaged_ship_health >= 100:
         game_active = False
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         DUMMY_WINDOW.blit(LOGO, (60, 25))
         DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
         DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
+
+        high_score = update_score(red_score, high_score)
+        score_display()
 
 
 def scale_window():  # Scales the game window and assets to fit the user's monitor dimensions
@@ -267,6 +270,7 @@ def main():  # The main game loop that handles the majority of the game logic
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
                 bullet = pygame.Rect(red.x + red.width // 2, red.y, 5, 10)
                 red_bullets.append(bullet)
+                LASER_SOUND.play()
 
             if events.type == SPAWN_ASTEROID:
                 asteroids_list.append(create_asteroid())
@@ -367,18 +371,24 @@ RED_SPACESHIP_IMAGE = pygame.image.load("assets/spaceship_red.png").convert_alph
 RED_SPACESHIP = pygame.transform.rotate(
     pygame.transform.scale(RED_SPACESHIP_IMAGE, (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)), 180
 )
-RED_SPACESHIP_RECT = RED_SPACESHIP.get_rect()
+RED_SPACESHIP_RECT = RED_SPACESHIP.get_rect(center=(288, 900))
 
 ASTEROID_SURFACE = pygame.transform.scale((pygame.image.load("assets/asteroid.png")).convert_alpha(), (50, 50))
 ASTEROID_RECT = ASTEROID_SURFACE.get_rect()
 
 LASER_BLAST = pygame.transform.scale((pygame.image.load("assets/laser_blast.png")).convert_alpha(), (50, 50))
 LASER_BLAST_RECT = LASER_BLAST.get_rect()
+
+# Audio files
 LASER_SOUND = pygame.mixer.Sound("assets/Gun+Silencer.mp3")
+pygame.mixer.Sound.set_volume(LASER_SOUND, 0.2)
 LASER_HIT = pygame.mixer.Sound("assets/Grenade+1.mp3")
+pygame.mixer.Sound.set_volume(LASER_HIT, 0.3)
 
 SHIP_DAMAGE = pygame.mixer.Sound("assets/ship_damage.wav")
+pygame.mixer.Sound.set_volume(SHIP_DAMAGE, 0.3)
 DEATH_SOUND = pygame.mixer.Sound("assets/dead.wav")
+pygame.mixer.Sound.set_volume(DEATH_SOUND, 0.3)
 
 GAME_MUSIC = pygame.mixer.Sound("assets/bgm.wav")
 pygame.mixer.Sound.set_volume(GAME_MUSIC, 0.1)
