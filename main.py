@@ -44,7 +44,7 @@ def check_asteroid_collision(asteroids, bullets, spaceship):  # Handles the aste
                 asteroids.remove(asteroid)
                 bullets.remove(bullet)
                 pygame.mixer.Channel(2).play(LASER_HIT)
-        if asteroid.top > BORDER.bottom:
+        if asteroid.top > 1024:
             pygame.mixer.Channel(3).play(SHIP_DAMAGE)
             damaged_ship_health -= 2
             asteroids.remove(asteroid)
@@ -63,13 +63,13 @@ def handle_bullets(red_bullet, asteroid):  # Handles the bullet collision physic
 def red_handle_movement(keys_press, redship):  # Moves the spaceship according to user input
     global game_active
     if game_active:
-        if keys_press[pygame.K_LEFT] and redship.left - VELOCITY > (WINDOW_WIDTH * 0.035):  # LEFT
+        if keys_press[pygame.K_LEFT] and redship.left - VELOCITY > 20:  # LEFT
             redship.x -= VELOCITY
-        if keys_press[pygame.K_RIGHT] and redship.right - VELOCITY < (WINDOW_WIDTH * 1.035):  # RIGHT
+        if keys_press[pygame.K_RIGHT] and redship.right - VELOCITY < 596:  # RIGHT
             redship.x += VELOCITY
-        if keys_press[pygame.K_UP] and redship.y - VELOCITY > 0:  # UP
+        if keys_press[pygame.K_UP] and redship.top - VELOCITY > 0:  # UP
             redship.y -= VELOCITY
-        if keys_press[pygame.K_DOWN] and redship.y + VELOCITY + redship.width < WINDOW_HEIGHT:  # DOWN
+        if keys_press[pygame.K_DOWN] and redship.bottom + VELOCITY < 1024:  # DOWN
             redship.y += VELOCITY
 
 
@@ -131,23 +131,24 @@ def start_screen():
         scale_window()
 
 
+def ship_health_colour(colour_choice, health):
+    if colour_choice == "Green":
+        ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, GREEN)
+    elif colour_choice == "Yellow":
+        ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, YELLOW)
+    elif colour_choice == "Orange":
+        ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, ORANGE)
+    elif colour_choice == "Red":
+        ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, RED)
+    return ship_health_text
+
+
 def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevant assets onscreen
     global MAX_BULLETS, asteroid_spawn_rate
     DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
 
     red_score_text = SCORE_FONT.render(f"Score: {redscore}", True, WHITE)
     DUMMY_WINDOW.blit(red_score_text, (420, 970))
-
-    def ship_health_colour(colour_choice, health):
-        if colour_choice == "Green":
-            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, GREEN)
-        elif colour_choice == "Yellow":
-            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, YELLOW)
-        elif colour_choice == "Orange":
-            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, ORANGE)
-        elif colour_choice == "Red":
-            ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, RED)
-        return ship_health_text
 
     if ship_health >= 90:
         DUMMY_WINDOW.blit(ship_health_colour("Green", ship_health), (10, 970))
@@ -320,7 +321,7 @@ DUMMY_WINDOW = pygame.Surface((576, 1024))
 WIDTH, HEIGHT = SCREEN_DIMENSIONS
 WINDOW_WIDTH = WINDOW.get_width()
 WINDOW_HEIGHT = WINDOW.get_height()
-BORDER = pygame.Rect(WINDOW_HEIGHT // 2, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+BORDER = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 
 # Colours
 WHITE = (255, 255, 255)
@@ -393,7 +394,7 @@ INTRO_1 = pygame.image.load("assets/intro_1.png")
 INTRO_2 = pygame.image.load("assets/intro_2.png")
 INTRO_3 = pygame.image.load("assets/intro_3.png")
 SPACEBAR_INSTRUCTIONS = pygame.image.load("assets/spacebar_instructions.png")
-SPACEBAR_INSTRUCTIONS_RECT = SPACEBAR_INSTRUCTIONS.get_rect(center=((WINDOW_WIDTH // 2), (WINDOW_HEIGHT * 0.546875)))
+SPACEBAR_INSTRUCTIONS_RECT = SPACEBAR_INSTRUCTIONS.get_rect(center=(288, 560))
 
 ICON = pygame.image.load("assets/icon.png")
 pygame.display.set_icon(ICON)
@@ -402,15 +403,14 @@ pygame.display.set_icon(ICON)
 running = False
 game_active = True
 red_bullets = []
-red = pygame.Rect((WINDOW_WIDTH // 2), (WINDOW_HEIGHT * 0.88), SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
+red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
 high_score = 0
 
 damaged_ship_health = 50
 
 asteroids_list = []
-asteroid_location = multiples(
-    (math.ceil(WINDOW_WIDTH * 0.02)), (math.floor(WINDOW_WIDTH * 0.98)), (math.floor(WINDOW_WIDTH * 0.087)))
+asteroid_location = multiples(12, 563, 50)
 
 # Start of the main game...
 instructions_screen_1()
