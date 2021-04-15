@@ -160,7 +160,7 @@ def scale_window():  # Scales the game window and assets to fit the user's monit
 
 
 def game_over():  # Displays the game over screen
-    global game_active, red, asteroids_list, high_score
+    global game_active, red, high_score
     if not game_active:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         DUMMY_WINDOW.blit(LOGO, (60, 25))
@@ -171,7 +171,6 @@ def game_over():  # Displays the game over screen
         score_display()
 
         red.center = (288, 900)
-        asteroids_list.clear()
 
 
 def ship_death(health):  # Causes the game session to end once the ship health reaches 0%
@@ -182,12 +181,13 @@ def ship_death(health):  # Causes the game session to end once the ship health r
 
 
 def game_clear():  # Clears the relevant variables to start a new game session
-    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets
+    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets, asteroids_list
     game_active = True
     red_score = 0
     damaged_ship_health = 50
     asteroid_spawn_rate = 1200
     red_bullets.clear()
+    asteroids_list.clear()
 
 
 def active_game():  # Handles the relevant variables when a game is in session
@@ -215,7 +215,7 @@ def main():  # The main game loop that handles the majority of the game logic
                 bullet = pygame.Rect(red.x + red.width // 2, red.y, 5, 10)
                 red_bullets.append(bullet)
 
-            if events.type == SPAWN_ASTEROID:
+            if events.type == SPAWN_ASTEROID and game_active:
                 asteroids_list.append(create_asteroid())
                 print(asteroids_list)
 
