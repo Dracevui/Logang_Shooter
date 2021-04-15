@@ -105,17 +105,29 @@ def instructions_screen_2():  # Displays instructions to game screen
 
 
 def instructions_screen_3():  # Displays instructions to game screen
-    global running
     instruction_state = True
     while instruction_state:
         DUMMY_WINDOW.fill(WHITE)
         for events in pygame.event.get():
             if events.type == pygame.KEYDOWN:
                 instruction_state = False
-                running = True
             if events.type == pygame.QUIT:
                 game_quit()
         DUMMY_WINDOW.blit(INTRO_3, (0, 0))
+        scale_window()
+
+
+def start_screen():
+    global running
+    while not running:
+        DUMMY_WINDOW.fill(WHITE)
+        for events in pygame.event.get():
+            if events.type == pygame.KEYDOWN:
+                running = True
+            if events.type == pygame.QUIT:
+                game_quit()
+        draw_stuff(red, red_bullets, red_score, damaged_ship_health)
+        DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, SPACEBAR_INSTRUCTIONS_RECT)
         scale_window()
 
 
@@ -191,7 +203,7 @@ def you_win():  # Displays the victory screen
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         DUMMY_WINDOW.blit(LOGO, (60, 25))
         DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
-        DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, (6, 712))
+        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
 
 
 def scale_window():  # Scales the game window and assets to fit the user's monitor dimensions
@@ -201,12 +213,12 @@ def scale_window():  # Scales the game window and assets to fit the user's monit
 
 
 def game_over():  # Displays the game over screen
-    global game_active, red, high_score
+    global red, high_score
     if not game_active:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         DUMMY_WINDOW.blit(LOGO, (60, 25))
         DUMMY_WINDOW.blit(YOU_LOSE_SURFACE, (6, 292))
-        DUMMY_WINDOW.blit(SPACEBAR_INSTRUCTIONS, (6, 712))
+        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
 
         high_score = update_score(red_score, high_score)
         score_display()
@@ -252,12 +264,11 @@ def main():  # The main game loop that handles the majority of the game logic
             if events.type == pygame.QUIT:
                 game_quit()
 
-            if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS \
-                    and game_active:
+            if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
                 bullet = pygame.Rect(red.x + red.width // 2, red.y, 5, 10)
                 red_bullets.append(bullet)
 
-            if events.type == SPAWN_ASTEROID and game_active:
+            if events.type == SPAWN_ASTEROID:
                 asteroids_list.append(create_asteroid())
                 print(asteroids_list)
 
@@ -265,10 +276,10 @@ def main():  # The main game loop that handles the majority of the game logic
                 for asteroid in asteroids_list:
                     asteroids_list.remove(asteroid)
 
-            if events.type == INCREASE_SHIP_HEALTH and game_active:
+            if events.type == INCREASE_SHIP_HEALTH:
                 damaged_ship_health += 1
 
-            if events.type == ASTEROID_SPAWN_RATE_PLUS and game_active:
+            if events.type == ASTEROID_SPAWN_RATE_PLUS:
                 asteroid_spawn_rate //= 2
                 spawn_asteroid(asteroid_spawn_rate)
 
@@ -376,12 +387,14 @@ GAME_MUSIC.play(-1)
 LOGO = pygame.image.load("assets/logo.png")
 YOU_WIN_SURFACE = pygame.image.load("assets/you_win.png")
 YOU_LOSE_SURFACE = pygame.image.load("assets/game_over.png")
-SPACEBAR_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
+SPACEBAR_AGAIN_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
 
 # Instruction Files
 INTRO_1 = pygame.image.load("assets/intro_1.png")
 INTRO_2 = pygame.image.load("assets/intro_2.png")
 INTRO_3 = pygame.image.load("assets/intro_3.png")
+SPACEBAR_INSTRUCTIONS = pygame.image.load("assets/spacebar_instructions.png")
+SPACEBAR_INSTRUCTIONS_RECT = SPACEBAR_INSTRUCTIONS.get_rect(center=(288, 560))
 
 ICON = pygame.image.load("assets/icon.png")
 pygame.display.set_icon(ICON)
@@ -392,6 +405,8 @@ instructions_screen_1()
 instructions_screen_2()
 
 instructions_screen_3()
+
+start_screen()
 
 main()
 
