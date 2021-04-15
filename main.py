@@ -63,13 +63,13 @@ def handle_bullets(red_bullet, asteroid):  # Handles the bullet collision physic
 def red_handle_movement(keys_press, redship):  # Moves the spaceship according to user input
     global game_active
     if game_active:
-        if keys_press[pygame.K_LEFT] and redship.x + VELOCITY > 0:  # LEFT
+        if keys_press[pygame.K_LEFT] and redship.left - VELOCITY > (WINDOW_WIDTH * 0.035):  # LEFT
             redship.x -= VELOCITY
-        if keys_press[pygame.K_RIGHT] and redship.x + VELOCITY + redship.width < WIDTH:  # RIGHT
+        if keys_press[pygame.K_RIGHT] and redship.right - VELOCITY < (WINDOW_WIDTH * 1.035):  # RIGHT
             redship.x += VELOCITY
         if keys_press[pygame.K_UP] and redship.y - VELOCITY > 0:  # UP
             redship.y -= VELOCITY
-        if keys_press[pygame.K_DOWN] and redship.y + VELOCITY + redship.width < HEIGHT:  # DOWN
+        if keys_press[pygame.K_DOWN] and redship.y + VELOCITY + redship.width < WINDOW_HEIGHT:  # DOWN
             redship.y += VELOCITY
 
 
@@ -165,7 +165,7 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevan
         f"Current Rate: every {asteroid_spawn_rate / 1000} seconds", True, WHITE)
     DUMMY_WINDOW.blit(current_spawn_rate_text, (40, 250))
 
-    DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x, redship.y))
+    DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x - (redship.w // 2), redship.y))
     DUMMY_WINDOW.blit(LOGO, (60, 25))
 
     # Bullets
@@ -226,7 +226,7 @@ def game_over():  # Displays the game over screen
         high_score = update_score(red_score, high_score)
         score_display()
 
-        red.center = (288, 900)
+        red.center = ((WINDOW_WIDTH // 2) + (red.width // 2), (WINDOW_HEIGHT * 0.88))
 
 
 def ship_death(health):  # Causes the game session to end once the ship health reaches 0%
@@ -269,7 +269,7 @@ def main():  # The main game loop that handles the majority of the game logic
 
             if game_active:
                 if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
-                    bullet = pygame.Rect(red.x + red.width // 2 - 8, red.y - 20, 17, 70)
+                    bullet = pygame.Rect(red.x - 9, red.y - 20, 17, 70)
                     red_bullets.append(bullet)
                     LASER_SOUND.play()
 
@@ -318,7 +318,9 @@ SCREEN_DIMENSIONS = (math.floor(MONITOR.current_w * 0.3), math.ceil(MONITOR.curr
 WINDOW = pygame.display.set_mode(SCREEN_DIMENSIONS)
 DUMMY_WINDOW = pygame.Surface((576, 1024))
 WIDTH, HEIGHT = SCREEN_DIMENSIONS
-BORDER = pygame.Rect(0, 0, WIDTH, HEIGHT)
+WINDOW_WIDTH = WINDOW.get_width()
+WINDOW_HEIGHT = WINDOW.get_height()
+BORDER = pygame.Rect(WINDOW_HEIGHT // 2, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 
 # Colours
 WHITE = (255, 255, 255)
@@ -338,28 +340,14 @@ CLOCK = pygame.time.Clock()
 SCORE_FONT = pygame.font.SysFont("comic_sans", 40, True)
 
 pygame.display.set_caption("Logang Shooter")
+asteroid_spawn_rate = 1200
+increased_spawn_rate = 15000
 
 # User Events
 ASTEROID_HIT = pygame.USEREVENT + 1
 SPAWN_ASTEROID = pygame.USEREVENT + 2
 INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
 ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
-
-# Game Variables
-running = False
-game_active = True
-red_bullets = []
-red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
-red_score = 0
-high_score = 0
-
-asteroid_spawn_rate = 1200
-increased_spawn_rate = 15000
-
-damaged_ship_health = 50
-
-asteroids_list = []
-asteroid_location = multiples(12, 563, 50)
 
 # User Event Timers
 spawn_asteroid(asteroid_spawn_rate)
@@ -377,7 +365,7 @@ RED_SPACESHIP_RECT = RED_SPACESHIP.get_rect(center=(288, 900))
 ASTEROID_SURFACE = pygame.transform.scale((pygame.image.load("assets/asteroid.png")).convert_alpha(), (50, 50))
 ASTEROID_RECT = ASTEROID_SURFACE.get_rect()
 
-LASER_BLAST = pygame.transform.scale((pygame.image.load("assets/laser_blast.png")).convert_alpha(), (17, 70))
+LASER_BLAST = pygame.image.load("assets/laser_blast.png").convert_alpha()
 LASER_BLAST_RECT = LASER_BLAST.get_rect()
 
 # Audio files
@@ -405,10 +393,24 @@ INTRO_1 = pygame.image.load("assets/intro_1.png")
 INTRO_2 = pygame.image.load("assets/intro_2.png")
 INTRO_3 = pygame.image.load("assets/intro_3.png")
 SPACEBAR_INSTRUCTIONS = pygame.image.load("assets/spacebar_instructions.png")
-SPACEBAR_INSTRUCTIONS_RECT = SPACEBAR_INSTRUCTIONS.get_rect(center=(288, 560))
+SPACEBAR_INSTRUCTIONS_RECT = SPACEBAR_INSTRUCTIONS.get_rect(center=((WINDOW_WIDTH // 2), (WINDOW_HEIGHT * 0.546875)))
 
 ICON = pygame.image.load("assets/icon.png")
 pygame.display.set_icon(ICON)
+
+# Game Variables
+running = False
+game_active = True
+red_bullets = []
+red = pygame.Rect((WINDOW_WIDTH // 2), (WINDOW_HEIGHT * 0.88), SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
+red_score = 0
+high_score = 0
+
+damaged_ship_health = 50
+
+asteroids_list = []
+asteroid_location = multiples(
+    (math.ceil(WINDOW_WIDTH * 0.02)), (math.floor(WINDOW_WIDTH * 0.98)), (math.floor(WINDOW_WIDTH * 0.087)))
 
 # Start of the main game...
 instructions_screen_1()
