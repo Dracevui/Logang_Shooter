@@ -124,12 +124,27 @@ def instructions_screen_3():  # Displays instructions to game screen
         scale_window()
 
 
+def instructions_screen_4():  # Displays instructions to game screen
+    instruction_state = True
+    while instruction_state:
+        DUMMY_WINDOW.fill(WHITE)
+        for events in pygame.event.get():
+            if events.type == pygame.KEYDOWN:
+                instruction_state = False
+            if events.type == pygame.QUIT:
+                game_quit()
+        DUMMY_WINDOW.blit(INTRO_4, (0, 0))
+        scale_window()
+
+
 def instructions_screen():  # # Displays all the instructions to the game screen
     instructions_screen_1()
 
     instructions_screen_2()
 
     instructions_screen_3()
+
+    instructions_screen_4()
 
 
 def start_screen():
@@ -408,6 +423,7 @@ SPACEBAR_AGAIN_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
 INTRO_1 = pygame.image.load("assets/intro_1.png")
 INTRO_2 = pygame.image.load("assets/intro_2.png")
 INTRO_3 = pygame.image.load("assets/intro_3.png")
+INTRO_4 = pygame.image.load("assets/intro_4.png")
 SPACEBAR_INSTRUCTIONS = pygame.image.load("assets/spacebar_instructions.png")
 SPACEBAR_INSTRUCTIONS_RECT = SPACEBAR_INSTRUCTIONS.get_rect(center=(288, 560))
 
