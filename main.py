@@ -15,6 +15,12 @@ def angle_choice(angle_listicle):
     return angle_dex
 
 
+def change_asteroid_pos(ast_rect, index):
+    if ast_rect.midbottom > BACKGROUND_SURFACE.get_rect().midtop:
+        changed_asteroid = rotate_asteroid(ASTEROID_SURFACE, index)
+        return changed_asteroid
+
+
 def rotate_asteroid(surface, angles):
     rotated_asteroid = pygame.transform.rotozoom(surface, angles, 1)
     return rotated_asteroid
@@ -33,7 +39,8 @@ def move_asteroids(asteroids):  # Moves the asteroids down the screen
 
 
 def draw_asteroids(asteroids):  # Draws the asteroids onto the game screen
-    global angle
+    global angle, angle_list
+    # index = angle_choice(angle_list)
     for asteroid in asteroids:
         rotated_asteroid = rotate_asteroid(ASTEROID_SURFACE, angle)
         DUMMY_WINDOW.blit(rotated_asteroid, asteroid)
@@ -148,12 +155,13 @@ def instructions_screen():  # # Displays all the instructions to the game screen
 
 
 def start_screen():
-    global running
+    global running, game_active
     while not running:
         DUMMY_WINDOW.fill(WHITE)
         for events in pygame.event.get():
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE:
                 running = True
+                game_active = True
             if events.type == pygame.QUIT:
                 game_quit()
         draw_stuff(red, red_bullets, red_score, damaged_ship_health)
@@ -164,13 +172,16 @@ def start_screen():
 def ship_health_colour(colour_choice, health):
     if colour_choice == "Green":
         ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, GREEN)
+        return ship_health_text
     elif colour_choice == "Yellow":
         ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, YELLOW)
+        return ship_health_text
     elif colour_choice == "Orange":
         ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, ORANGE)
+        return ship_health_text
     elif colour_choice == "Red":
         ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, RED)
-    return ship_health_text
+        return ship_health_text
 
 
 def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevant assets onscreen
@@ -310,8 +321,7 @@ def main():  # The main game loop that handles the majority of the game logic
                     print(asteroids_list)
 
                 if events.type == ASTEROID_SPAWN_RATE_PLUS:
-                    asteroid_spawn_rate //= 2
-                    spawn_asteroid(asteroid_spawn_rate)
+                    asteroid_spawn_rate /= 2
 
             if events.type == ASTEROID_HIT:
                 for asteroid in asteroids_list:
@@ -432,7 +442,7 @@ pygame.display.set_icon(ICON)
 
 # Game Variables
 running = False
-game_active = True
+game_active = False
 red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
