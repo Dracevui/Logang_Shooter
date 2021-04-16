@@ -269,7 +269,7 @@ def game_over():  # Displays the game over screen
         high_score = update_score(red_score, high_score)
         score_display()
 
-        red.center = ((WINDOW_WIDTH // 2) + (red.width // 2), (WINDOW_HEIGHT * 0.88))
+        red.center = (308, 900)
 
 
 def ship_death(health):  # Causes the game session to end once the ship health reaches 0%
