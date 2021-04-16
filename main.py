@@ -55,6 +55,7 @@ def check_asteroid_collision(asteroids, bullets, spaceship):  # Handles the aste
         for bullet in bullets:
             if bullet.colliderect(asteroid):
                 red_score += 1
+                DUMMY_WINDOW.blit(EXPLOSION_SURFACE, asteroid)
                 asteroids.remove(asteroid)
                 bullets.remove(bullet)
                 pygame.mixer.Channel(2).play(LASER_HIT)
@@ -363,12 +364,14 @@ WIDTH, HEIGHT = SCREEN_DIMENSIONS
 WINDOW_WIDTH = WINDOW.get_width()
 WINDOW_HEIGHT = WINDOW.get_height()
 
+
 # Colours
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 ORANGE = (255, 102, 39)
 YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
+
 
 FPS = 60
 VELOCITY = 10
@@ -384,16 +387,19 @@ pygame.display.set_caption("Logang Shooter")
 asteroid_spawn_rate = 1200
 increased_spawn_rate = 15000
 
+
 # User Events
 ASTEROID_HIT = pygame.USEREVENT + 1
 SPAWN_ASTEROID = pygame.USEREVENT + 2
 INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
 ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 
+
 # User Event Timers
 spawn_asteroid(asteroid_spawn_rate)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
 pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, increased_spawn_rate)
+
 
 # Asset Files
 BACKGROUND_SURFACE = pygame.transform.scale((pygame.image.load("assets/space.png")), (576, 1024))
@@ -408,6 +414,9 @@ ASTEROID_RECT = ASTEROID_SURFACE.get_rect()
 
 LASER_BLAST = pygame.image.load("assets/laser_blast.png").convert_alpha()
 LASER_BLAST_RECT = LASER_BLAST.get_rect()
+
+EXPLOSION_SURFACE = pygame.image.load("assets/boom.png").convert_alpha()
+
 
 # Audio files
 LASER_SOUND = pygame.mixer.Sound("assets/Gun+Silencer.mp3")
@@ -429,6 +438,7 @@ YOU_WIN_SURFACE = pygame.image.load("assets/you_win.png")
 YOU_LOSE_SURFACE = pygame.image.load("assets/game_over.png")
 SPACEBAR_AGAIN_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
 
+
 # Instruction Files
 INTRO_1 = pygame.image.load("assets/intro_1.png")
 INTRO_2 = pygame.image.load("assets/intro_2.png")
@@ -439,6 +449,7 @@ SPACEBAR_INSTRUCTIONS_RECT = SPACEBAR_INSTRUCTIONS.get_rect(center=(288, 560))
 
 ICON = pygame.image.load("assets/icon.png")
 pygame.display.set_icon(ICON)
+
 
 # Game Variables
 running = False
@@ -455,6 +466,7 @@ damaged_ship_health = 50
 
 asteroids_list = []
 asteroid_location = multiples(12, 563, 50)
+
 
 # Start of the main game...
 instructions_screen()
