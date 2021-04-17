@@ -297,15 +297,6 @@ def active_game():  # Handles the relevant variables when a game is in session
         draw_asteroids(asteroids_list)
 
 
-def resume_button_hover():  # Changes colour of the resume button if hovered over # TODO: fix this lmao
-    mx, my = pygame.mouse.get_pos()
-    for event in pygame.event.get():
-        if event.type == pygame.MOUSEMOTION and RESUME_HOVER_RECT.collidepoint((mx, my)):
-            DUMMY_WINDOW.blit(RESUME_HOVER_SURFACE, RESUME_HOVER_RECT)
-        if event.type == pygame.QUIT:
-            game_quit()
-
-
 def pause_game_screen():  # Draws the paused screen assets
     draw_stuff(red, red_bullets, red_score, damaged_ship_health)
     draw_asteroids(asteroids_list)
