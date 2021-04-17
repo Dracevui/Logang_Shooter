@@ -199,7 +199,7 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevan
 
     max_bullet_text = SCORE_FONT.render(f"Bullets = {len(red_bullets)}/{MAX_BULLETS}", True, WHITE)
     DUMMY_WINDOW.blit(max_bullet_text, (0, 0))
-    
+
     current_spawn_rate_text = SCORE_FONT.render(
         f"Current Rate: every {asteroid_spawn_rate / 1000} seconds", True, WHITE)
     DUMMY_WINDOW.blit(current_spawn_rate_text, (40, 250))
@@ -297,6 +297,46 @@ def active_game():  # Handles the relevant variables when a game is in session
         draw_asteroids(asteroids_list)
 
 
+def resume_button_hover():  # Changes colour of the resume button if hovered over # TODO: fix this lmao
+    mx, my = pygame.mouse.get_pos()
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEMOTION and RESUME_HOVER_RECT.collidepoint((mx, my)):
+            DUMMY_WINDOW.blit(RESUME_HOVER_SURFACE, RESUME_HOVER_RECT)
+        if event.type == pygame.QUIT:
+            game_quit()
+
+
+def pause_game_screen():  # Draws the paused screen assets
+    draw_stuff(red, red_bullets, red_score, damaged_ship_health)
+    draw_asteroids(asteroids_list)
+    DUMMY_WINDOW.blit(RESUME_BUTTON_SURFACE, RESUME_BUTTON_RECT)
+
+
+def pause_game():  # Handles the paused screen logic
+    paused = True
+    while paused:
+        pause_game_screen()
+
+        mx, my = pygame.mouse.get_pos()
+
+        resume_button = RESUME_BUTTON_RECT
+
+        click = False
+
+        for event in pygame.event.get():
+            click = True if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 \
+                or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE else False
+
+            if event.type == pygame.QUIT:
+                game_quit()
+
+        if resume_button.collidepoint((mx, my)) and click:
+            paused = False
+
+        scale_window()
+        CLOCK.tick(FPS)
+
+
 def main():  # The main game loop that handles the majority of the game logic
     global damaged_ship_health, asteroid_spawn_rate, angle
     asteroid = ASTEROID_RECT
@@ -319,6 +359,10 @@ def main():  # The main game loop that handles the majority of the game logic
 
                 if events.type == ASTEROID_SPAWN_RATE_PLUS:
                     asteroid_spawn_rate //= 2
+                    spawn_asteroid(asteroid_spawn_rate)
+
+                if events.type == pygame.KEYDOWN and events.key == pygame.K_ESCAPE:
+                    pause_game()
 
             if events.type == ASTEROID_HIT:
                 for asteroid in asteroids_list:
@@ -360,14 +404,12 @@ WIDTH, HEIGHT = SCREEN_DIMENSIONS
 WINDOW_WIDTH = WINDOW.get_width()
 WINDOW_HEIGHT = WINDOW.get_height()
 
-
 # Colours
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 ORANGE = (255, 102, 39)
 YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
-
 
 FPS = 60
 VELOCITY = 10
@@ -383,19 +425,16 @@ pygame.display.set_caption("Logang Shooter")
 asteroid_spawn_rate = 1200
 increased_spawn_rate = 15000
 
-
 # User Events
 ASTEROID_HIT = pygame.USEREVENT + 1
 SPAWN_ASTEROID = pygame.USEREVENT + 2
 INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
 ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 
-
 # User Event Timers
 spawn_asteroid(asteroid_spawn_rate)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
 pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, increased_spawn_rate)
-
 
 # Asset Files
 BACKGROUND_SURFACE = pygame.transform.scale((pygame.image.load("assets/space.png")), (576, 1024))
@@ -413,6 +452,16 @@ LASER_BLAST_RECT = LASER_BLAST.get_rect()
 
 EXPLOSION_SURFACE = pygame.image.load("assets/boom.png").convert_alpha()
 
+LOGO = pygame.image.load("assets/logo.png")
+YOU_WIN_SURFACE = pygame.image.load("assets/you_win.png")
+YOU_LOSE_SURFACE = pygame.image.load("assets/game_over.png")
+SPACEBAR_AGAIN_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
+
+RESUME_BUTTON_SURFACE = pygame.image.load("assets/resume_button.png")
+RESUME_BUTTON_RECT = RESUME_BUTTON_SURFACE.get_rect(center=(288, 512))
+
+RESUME_HOVER_SURFACE = pygame.image.load("assets/resume_hover.png")
+RESUME_HOVER_RECT = RESUME_HOVER_SURFACE.get_rect(center=(288, 512))
 
 # Audio files
 LASER_SOUND = pygame.mixer.Sound("assets/Gun+Silencer.mp3")
@@ -429,12 +478,6 @@ GAME_MUSIC = pygame.mixer.Sound("assets/bgm.wav")
 pygame.mixer.Sound.set_volume(GAME_MUSIC, 0.1)
 GAME_MUSIC.play(-1)
 
-LOGO = pygame.image.load("assets/logo.png")
-YOU_WIN_SURFACE = pygame.image.load("assets/you_win.png")
-YOU_LOSE_SURFACE = pygame.image.load("assets/game_over.png")
-SPACEBAR_AGAIN_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
-
-
 # Instruction Files
 INTRO_1 = pygame.image.load("assets/intro_1.png")
 INTRO_2 = pygame.image.load("assets/intro_2.png")
@@ -445,7 +488,6 @@ SPACEBAR_INSTRUCTIONS_RECT = SPACEBAR_INSTRUCTIONS.get_rect(center=(288, 560))
 
 ICON = pygame.image.load("assets/icon.png")
 pygame.display.set_icon(ICON)
-
 
 # Game Variables
 running = False
@@ -462,7 +504,6 @@ damaged_ship_health = 50
 
 asteroids_list = []
 asteroid_location = multiples(12, 563, 50)
-
 
 # Start of the main game...
 instructions_screen()
