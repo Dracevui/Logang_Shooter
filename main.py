@@ -309,7 +309,7 @@ def resume_button_hover():  # Changes colour of the resume button if hovered ove
 def pause_game_screen():  # Draws the paused screen assets
     draw_stuff(red, red_bullets, red_score, damaged_ship_health)
     draw_asteroids(asteroids_list)
-    DUMMY_WINDOW.blit(RESUME_BUTTON_SURFACE, RESUME_BUTTON_RECT)
+    DUMMY_WINDOW.blit(RESUME_BUTTON_SURFACE, (82, 442))
 
 
 def pause_game():  # Handles the paused screen logic
@@ -458,7 +458,7 @@ YOU_LOSE_SURFACE = pygame.image.load("assets/game_over.png")
 SPACEBAR_AGAIN_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
 
 RESUME_BUTTON_SURFACE = pygame.image.load("assets/resume_button.png")
-RESUME_BUTTON_RECT = RESUME_BUTTON_SURFACE.get_rect(center=(288, 512))
+RESUME_BUTTON_RECT = RESUME_BUTTON_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
 
 RESUME_HOVER_SURFACE = pygame.image.load("assets/resume_hover.png")
 RESUME_HOVER_RECT = RESUME_HOVER_SURFACE.get_rect(center=(288, 512))
