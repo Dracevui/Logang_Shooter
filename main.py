@@ -10,25 +10,25 @@ def multiples(num1, num2, mult):  # Creates a numbered list with a custom range 
     return newlist
 
 
-def angle_choice(angle_listicle):
+def angle_choice(angle_listicle):  # Randomly chooses a new starting angle from a list of values
     angle_dex = random.choice(angle_listicle)
     return angle_dex
 
 
-def change_asteroid_pos(ast_rect, index):
+def change_asteroid_pos(ast_rect, index):  # Changes the initial starting angle of the created asteroid
     if ast_rect.midbottom > BACKGROUND_SURFACE.get_rect().midtop:
         changed_asteroid = rotate_asteroid(ASTEROID_SURFACE, index)
         return changed_asteroid
 
 
-def rotate_asteroid(surface, angles):
+def rotate_asteroid(surface, angles):  # Rotates the asteroid as they fly down the screen
     rotated_asteroid = pygame.transform.rotozoom(surface, angles, 1)
     return rotated_asteroid
 
 
 def create_asteroid():  # Creates an asteroid in a random position and places it in the asteroid list
     random_asteroid_pos = random.choice(asteroid_location)
-    top_asteroid = ASTEROID_SURFACE.get_rect(midbottom=(random_asteroid_pos, 10))
+    top_asteroid = ASTEROID_SURFACE.get_rect(midbottom=(random_asteroid_pos, -10))
     return top_asteroid
 
 
@@ -39,8 +39,6 @@ def move_asteroids(asteroids):  # Moves the asteroids down the screen
 
 
 def draw_asteroids(asteroids):  # Draws the asteroids onto the game screen
-    global angle, angle_list
-    # index = angle_choice(angle_list)
     for asteroid in asteroids:
         rotated_asteroid = rotate_asteroid(ASTEROID_SURFACE, angle)
         DUMMY_WINDOW.blit(rotated_asteroid, asteroid)
@@ -76,7 +74,6 @@ def handle_bullets(red_bullet, asteroid):  # Handles the bullet collision physic
 
 
 def red_handle_movement(keys_press, redship):  # Moves the spaceship according to user input
-    global game_active
     if game_active:
         if keys_press[pygame.K_LEFT] and redship.left - VELOCITY > 20:  # LEFT
             redship.x -= VELOCITY
@@ -145,7 +142,7 @@ def instructions_screen_4():  # Displays instructions to game screen
         scale_window()
 
 
-def instructions_screen():  # # Displays all the instructions to the game screen
+def instructions_screen():  # Displays all the instructions to the game screen
     instructions_screen_1()
 
     instructions_screen_2()
@@ -155,7 +152,7 @@ def instructions_screen():  # # Displays all the instructions to the game screen
     instructions_screen_4()
 
 
-def start_screen():
+def start_screen():  # The start screen of the game
     global running, game_active
     while not running:
         DUMMY_WINDOW.fill(WHITE)
@@ -170,7 +167,7 @@ def start_screen():
         scale_window()
 
 
-def ship_health_colour(colour_choice, health):
+def ship_health_colour(colour_choice, health):  # Changes the colour of the ship's health depending on its value
     if colour_choice == "Green":
         ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, GREEN)
         return ship_health_text
@@ -186,7 +183,6 @@ def ship_health_colour(colour_choice, health):
 
 
 def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevant assets onscreen
-    global MAX_BULLETS, asteroid_spawn_rate
     DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
 
     red_score_text = SCORE_FONT.render(f"Score: {redscore}", True, WHITE)
@@ -291,7 +287,7 @@ def game_clear():  # Clears the relevant variables to start a new game session
 
 
 def active_game():  # Handles the relevant variables when a game is in session
-    global game_active, asteroids_list, red
+    global game_active, asteroids_list
     if game_active:
         # Spaceship
         game_active = check_asteroid_collision(asteroids_list, red_bullets, red)
@@ -302,7 +298,7 @@ def active_game():  # Handles the relevant variables when a game is in session
 
 
 def main():  # The main game loop that handles the majority of the game logic
-    global damaged_ship_health, asteroid_spawn_rate, game_active, angle
+    global damaged_ship_health, asteroid_spawn_rate, angle
     asteroid = ASTEROID_RECT
 
     while running:
@@ -311,7 +307,7 @@ def main():  # The main game loop that handles the majority of the game logic
                 game_quit()
 
             if game_active:
-                angle += 15
+                angle -= 15
                 if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
                     bullet = pygame.Rect(red.x - 9, red.y - 20, 17, 70)
                     red_bullets.append(bullet)
@@ -322,7 +318,7 @@ def main():  # The main game loop that handles the majority of the game logic
                     print(asteroids_list)
 
                 if events.type == ASTEROID_SPAWN_RATE_PLUS:
-                    asteroid_spawn_rate /= 2
+                    asteroid_spawn_rate //= 2
 
             if events.type == ASTEROID_HIT:
                 for asteroid in asteroids_list:
