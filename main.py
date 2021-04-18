@@ -297,10 +297,132 @@ def active_game():  # Handles the relevant variables when a game is in session
         draw_asteroids(asteroids_list)
 
 
+def ship_regeneration_settings():
+    global ship_regen_rate
+    ship_regeneration_state = True
+    while ship_regeneration_state:
+        ship_regeneration_screen(ship_regen_rate)
+
+        mx, my = pygame.mouse.get_pos()
+
+        click = False
+
+        for event in pygame.event.get():
+            click = True if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 else False
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                settings()
+                ship_regeneration_state = False
+
+            if event.type == pygame.QUIT:
+                game_quit()
+
+        if ONE_SECOND_RECT.collidepoint(mx, my) and click:
+            ship_regen_rate = 1000
+
+        if TWO_SECOND_RECT.collidepoint(mx, my) and click:
+            ship_regen_rate = 2000
+
+        if THREE_SECOND_RECT.collidepoint(mx, my) and click:
+            ship_regen_rate = 3000
+
+        scale_window()
+        CLOCK.tick(FPS)
+
+
+def ship_regeneration_screen(regen_rate):
+    DUMMY_WINDOW.blit(SHIP_REGENERATION_SCREEN, (0, 0))
+    DUMMY_WINDOW.blit(ONE_SECOND_SURFACE, ONE_SECOND_RECT)
+    DUMMY_WINDOW.blit(TWO_SECOND_SURFACE, TWO_SECOND_RECT)
+    DUMMY_WINDOW.blit(THREE_SECOND_SURFACE, THREE_SECOND_RECT)
+
+    regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, GREEN)
+    regen_rect = regen_text.get_rect(center=(288, 980))
+    DUMMY_WINDOW.blit(regen_text, regen_rect)
+
+
+def ship_health_settings():
+    global damaged_ship_health
+    ship_health_state = True
+    while ship_health_state:
+        ship_health_screen(damaged_ship_health)
+
+        mx, my = pygame.mouse.get_pos()
+
+        click = False
+
+        for event in pygame.event.get():
+            click = True if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 else False
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                settings()
+                ship_health_state = False
+
+            if event.type == pygame.QUIT:
+                game_quit()
+
+        if TWENTY_FIVE_RECT.collidepoint(mx, my) and click:
+            damaged_ship_health = 25
+
+        if FIFTY_RECT.collidepoint(mx, my) and click:
+            damaged_ship_health = 50
+
+        if SEVENTY_FIVE_RECT.collidepoint(mx, my) and click:
+            damaged_ship_health = 75
+
+        scale_window()
+        CLOCK.tick(FPS)
+
+
+def ship_health_screen(ship_health):
+    DUMMY_WINDOW.blit(SHIP_HEALTH_SCREEN, (0, 0))
+    DUMMY_WINDOW.blit(TWENTY_FIVE_SURFACE, TWENTY_FIVE_RECT)
+    DUMMY_WINDOW.blit(FIFTY_SURFACE, FIFTY_RECT)
+    DUMMY_WINDOW.blit(SEVENTY_FIVE_SURFACE, SEVENTY_FIVE_RECT)
+
+    health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, WHITE)
+    health_rect = health_text.get_rect(center=(288, 960))
+    DUMMY_WINDOW.blit(health_text, health_rect)
+
+
+def settings():
+    settings_state = True
+    while settings_state:
+        settings_screen()
+
+        mx, my = pygame.mouse.get_pos()
+
+        click = False
+
+        for event in pygame.event.get():
+            click = True if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 else False
+            if event.type == pygame.QUIT:
+                game_quit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                pause_game()
+                settings_state = False
+
+        if SHIP_REGENERATION_RECT.collidepoint(mx, my) and click:
+            ship_regeneration_settings()
+
+        if SHIP_HEALTH_RECT.collidepoint(mx, my) and click:
+            ship_health_settings()
+
+        scale_window()
+        CLOCK.tick(FPS)
+
+
+def settings_screen():  # Shows the options screen to the player
+    DUMMY_WINDOW.blit(SETTINGS_SCREEN_SURFACE, (0, 0))
+    DUMMY_WINDOW.blit(SHIP_HEALTH_BUTTON, SHIP_HEALTH_RECT)
+    DUMMY_WINDOW.blit(SHIP_REGENERATION_BUTTON, SHIP_REGENERATION_RECT)
+
+
 def pause_game_screen():  # Draws the paused screen assets
     draw_stuff(red, red_bullets, red_score, damaged_ship_health)
     draw_asteroids(asteroids_list)
     DUMMY_WINDOW.blit(RESUME_BUTTON_SURFACE, (82, 442))
+    DUMMY_WINDOW.blit(OPTIONS_BUTTON_SURFACE, OPTIONS_BUTTON_RECT)
 
 
 def pause_game():  # Handles the paused screen logic
@@ -323,6 +445,9 @@ def pause_game():  # Handles the paused screen logic
 
         if resume_button.collidepoint((mx, my)) and click:
             paused = False
+
+        if OPTIONS_BUTTON_RECT.collidepoint((mx, my)) and click:
+            settings()
 
         scale_window()
         CLOCK.tick(FPS)
@@ -401,6 +526,7 @@ RED = (255, 0, 0)
 ORANGE = (255, 102, 39)
 YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
+EASY, MEDIUM, HARD = (98, 255, 183), (97, 174, 255), (255, 116, 123)
 
 FPS = 60
 VELOCITY = 10
@@ -411,10 +537,12 @@ SPACESHIP_WIDTH, SPACESHIP_HEIGHT = 65, 50
 CLOCK = pygame.time.Clock()
 
 SCORE_FONT = pygame.font.SysFont("comic_sans", 40, True)
+REGEN_FONT = pygame.font.SysFont("Impact", 30)
 
 pygame.display.set_caption("Logang Shooter")
 asteroid_spawn_rate = 1200
 increased_spawn_rate = 15000
+ship_regen_rate = 2000
 
 # User Events
 ASTEROID_HIT = pygame.USEREVENT + 1
@@ -424,7 +552,7 @@ ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 
 # User Event Timers
 spawn_asteroid(asteroid_spawn_rate)
-pygame.time.set_timer(INCREASE_SHIP_HEALTH, 2500)
+pygame.time.set_timer(INCREASE_SHIP_HEALTH, ship_regen_rate)
 pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, increased_spawn_rate)
 
 # Asset Files
@@ -448,11 +576,44 @@ YOU_WIN_SURFACE = pygame.image.load("assets/you_win.png")
 YOU_LOSE_SURFACE = pygame.image.load("assets/game_over.png")
 SPACEBAR_AGAIN_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
 
+# Buttons
 RESUME_BUTTON_SURFACE = pygame.image.load("assets/resume_button.png")
 RESUME_BUTTON_RECT = RESUME_BUTTON_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
 
 RESUME_HOVER_SURFACE = pygame.image.load("assets/resume_hover.png")
 RESUME_HOVER_RECT = RESUME_HOVER_SURFACE.get_rect(center=(288, 512))
+
+OPTIONS_BUTTON_SURFACE = pygame.image.load("assets/button_options.png")
+OPTIONS_BUTTON_RECT = OPTIONS_BUTTON_SURFACE.get_rect(topright=(566, 10))
+
+SHIP_HEALTH_BUTTON = pygame.image.load("assets/button_ship-health.png")
+SHIP_HEALTH_RECT = SHIP_HEALTH_BUTTON.get_rect(center=(288, 450))
+
+SHIP_REGENERATION_BUTTON = pygame.image.load("assets/button_ship-regeneration.png")
+SHIP_REGENERATION_RECT = SHIP_REGENERATION_BUTTON.get_rect(center=(288, 750))
+
+ONE_SECOND_SURFACE = pygame.image.load("assets/button_1s.png")
+ONE_SECOND_RECT = ONE_SECOND_SURFACE.get_rect(center=(288, 620))
+
+TWO_SECOND_SURFACE = pygame.image.load("assets/button_2s.png")
+TWO_SECOND_RECT = TWO_SECOND_SURFACE.get_rect(center=(288, 770))
+
+THREE_SECOND_SURFACE = pygame.image.load("assets/button_3s.png")
+THREE_SECOND_RECT = THREE_SECOND_SURFACE.get_rect(center=(288, 920))
+
+TWENTY_FIVE_SURFACE = pygame.image.load("assets/button_25.png")
+TWENTY_FIVE_RECT = TWENTY_FIVE_SURFACE.get_rect(center=(288, 450))
+
+FIFTY_SURFACE = pygame.image.load("assets/button_50.png")
+FIFTY_RECT = FIFTY_SURFACE.get_rect(center=(288, 650))
+
+SEVENTY_FIVE_SURFACE = pygame.image.load("assets/button_75.png")
+SEVENTY_FIVE_RECT = SEVENTY_FIVE_SURFACE.get_rect(center=(288, 850))
+
+# Backgrounds
+SETTINGS_SCREEN_SURFACE = pygame.image.load("assets/settings_screen.png")
+SHIP_HEALTH_SCREEN = pygame.image.load("assets/ship_health_screen.png")
+SHIP_REGENERATION_SCREEN = pygame.image.load("assets/ship_regeneration_screen.png")
 
 # Audio files
 LASER_SOUND = pygame.mixer.Sound("assets/Gun+Silencer.mp3")
