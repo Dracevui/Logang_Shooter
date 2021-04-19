@@ -32,6 +32,11 @@ def create_asteroid():  # Creates an asteroid in a random position and places it
     return top_asteroid
 
 
+def spawn_asteroid(rate):  # Custom User Event that spawns in asteroids at a set rate
+    pygame.time.set_timer(SPAWN_ASTEROID, rate)
+    return rate
+
+
 def move_asteroids(asteroids):  # Moves the asteroids down the screen
     for asteroid in asteroids:
         asteroid.centery += 5
@@ -42,6 +47,11 @@ def draw_asteroids(asteroids):  # Draws the asteroids onto the game screen
     for asteroid in asteroids:
         rotated_asteroid = rotate_asteroid(ASTEROID_SURFACE, angle)
         DUMMY_WINDOW.blit(rotated_asteroid, asteroid)
+
+
+def remove_asteroid(asteroids):  # Removes the asteroids from the game screen
+    for asteroid in asteroids:
+        asteroids.remove(asteroid)
 
 
 def check_asteroid_collision(asteroids, bullets, spaceship):  # Handles the asteroid collision physics
@@ -64,15 +74,6 @@ def check_asteroid_collision(asteroids, bullets, spaceship):  # Handles the aste
     return True
 
 
-def handle_bullets(red_bullet, asteroid):  # Handles the bullet collision physics and ammunition count
-    for bullet in red_bullet:
-        bullet.y -= BULLET_VELOCITY
-        if asteroid.colliderect(bullet):
-            pygame.event.post(pygame.event.Event(ASTEROID_HIT))
-        elif bullet.y < 0:
-            red_bullet.remove(bullet)
-
-
 def red_handle_movement(keys_press, redship):  # Moves the spaceship according to user input
     if game_active:
         if keys_press[pygame.K_LEFT] and redship.left - VELOCITY > 20:  # LEFT
@@ -85,9 +86,13 @@ def red_handle_movement(keys_press, redship):  # Moves the spaceship according t
             redship.y += VELOCITY
 
 
-def game_quit():  # Quits the game when prompted
-    pygame.quit()
-    sys.exit()
+def handle_bullets(red_bullet, asteroid):  # Handles the bullet collision physics and ammunition count
+    for bullet in red_bullet:
+        bullet.y -= BULLET_VELOCITY
+        if asteroid.colliderect(bullet):
+            pygame.event.post(pygame.event.Event(ASTEROID_HIT))
+        elif bullet.y < 0:
+            red_bullet.remove(bullet)
 
 
 def instructions_screen_1():  # Displays instructions to game screen
@@ -167,6 +172,40 @@ def start_screen():  # The start screen of the game
         scale_window()
 
 
+def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevant assets onscreen
+    # Background
+    DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
+
+    # Current Score
+    red_score_text = SCORE_FONT.render(f"Score: {redscore}", True, WHITE)
+    DUMMY_WINDOW.blit(red_score_text, (420, 970))
+
+    # Ship Health
+    if ship_health >= 90:
+        DUMMY_WINDOW.blit(ship_health_colour("Green", ship_health), (10, 970))
+    elif 89 >= ship_health >= 60:
+        DUMMY_WINDOW.blit(ship_health_colour("Yellow", ship_health), (10, 970))
+    elif 59 >= ship_health >= 30:
+        DUMMY_WINDOW.blit(ship_health_colour("Orange", ship_health), (10, 970))
+    else:
+        DUMMY_WINDOW.blit(ship_health_colour("Red", ship_health), (10, 970))
+
+    # Bullets
+    for bullet in red_bullet:
+        DUMMY_WINDOW.blit(LASER_BLAST, bullet)
+    max_bullet_text = SCORE_FONT.render(f"Bullets = {len(red_bullets)}/{MAX_BULLETS}", True, WHITE)
+    DUMMY_WINDOW.blit(max_bullet_text, (0, 0))
+
+    current_spawn_rate_text = SCORE_FONT.render(
+        f"Current Rate: every {asteroid_spawn_rate / 1000} seconds", True, WHITE)
+    DUMMY_WINDOW.blit(current_spawn_rate_text, (40, 250))
+
+    DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x - (redship.w // 2), redship.y))
+    DUMMY_WINDOW.blit(LOGO, (60, 25))
+
+    pygame.display.update()
+
+
 def ship_health_colour(colour_choice, health):  # Changes the colour of the ship's health depending on its value
     if colour_choice == "Green":
         ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, GREEN)
@@ -180,43 +219,6 @@ def ship_health_colour(colour_choice, health):  # Changes the colour of the ship
     elif colour_choice == "Red":
         ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, RED)
         return ship_health_text
-
-
-def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevant assets onscreen
-    DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
-
-    red_score_text = SCORE_FONT.render(f"Score: {redscore}", True, WHITE)
-    DUMMY_WINDOW.blit(red_score_text, (420, 970))
-
-    if ship_health >= 90:
-        DUMMY_WINDOW.blit(ship_health_colour("Green", ship_health), (10, 970))
-    elif 89 >= ship_health >= 60:
-        DUMMY_WINDOW.blit(ship_health_colour("Yellow", ship_health), (10, 970))
-    elif 59 >= ship_health >= 30:
-        DUMMY_WINDOW.blit(ship_health_colour("Orange", ship_health), (10, 970))
-    else:
-        DUMMY_WINDOW.blit(ship_health_colour("Red", ship_health), (10, 970))
-
-    max_bullet_text = SCORE_FONT.render(f"Bullets = {len(red_bullets)}/{MAX_BULLETS}", True, WHITE)
-    DUMMY_WINDOW.blit(max_bullet_text, (0, 0))
-
-    current_spawn_rate_text = SCORE_FONT.render(
-        f"Current Rate: every {asteroid_spawn_rate / 1000} seconds", True, WHITE)
-    DUMMY_WINDOW.blit(current_spawn_rate_text, (40, 250))
-
-    DUMMY_WINDOW.blit(RED_SPACESHIP, (redship.x - (redship.w // 2), redship.y))
-    DUMMY_WINDOW.blit(LOGO, (60, 25))
-
-    # Bullets
-    for bullet in red_bullet:
-        DUMMY_WINDOW.blit(LASER_BLAST, bullet)
-
-    pygame.display.update()
-
-
-def spawn_asteroid(rate):  # Custom User Event that spawns in asteroids at a set rate
-    pygame.time.set_timer(SPAWN_ASTEROID, rate)
-    return rate
 
 
 def score_display():  # Writes out high score to the game window
@@ -235,84 +237,27 @@ def update_score(score, hi_score):  # Handles the logic of updating the high sco
     return hi_score
 
 
-def you_win():  # Displays the victory screen
-    global game_active, high_score
-    if damaged_ship_health >= 100:
-        game_active = False
-        DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
-        DUMMY_WINDOW.blit(LOGO, (60, 25))
-        DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
-        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
-
-        high_score = update_score(red_score, high_score)
-        score_display()
-
-
-def scale_window():  # Scales the game window and assets to fit the user's monitor dimensions
-    frame = pygame.transform.scale(DUMMY_WINDOW, SCREEN_DIMENSIONS)
-    WINDOW.blit(frame, frame.get_rect())
-    pygame.display.flip()
-
-
-def game_over():  # Displays the game over screen
-    global red, high_score
-    if not game_active:
-        DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
-        DUMMY_WINDOW.blit(LOGO, (60, 25))
-        DUMMY_WINDOW.blit(YOU_LOSE_SURFACE, (6, 292))
-        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
-
-        high_score = update_score(red_score, high_score)
-        score_display()
-
-        red.center = (308, 900)
-
-
-def ship_death(health):  # Causes the game session to end once the ship health reaches 0%
-    global game_active
-    if health <= 0:
-        game_active = False
-        game_over()
-
-
-def game_clear():  # Clears the relevant variables to start a new game session
-    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets, asteroids_list, running, \
-        ship_regen_rate
-    game_active = True
-    red_score = 0
-
-    if ship_health_25:
-        damaged_ship_health = 25
-    elif ship_health_50:
-        damaged_ship_health = 50
-    elif ship_health_75:
-        damaged_ship_health = 75
+def ship_regeneration_screen(regen_rate):  # Draws the relevant ship regeneration buttons onscreen
+    DUMMY_WINDOW.blit(SHIP_REGENERATION_SCREEN, (0, 0))
+    DUMMY_WINDOW.blit(ONE_SECOND_SURFACE, ONE_SECOND_RECT)
+    DUMMY_WINDOW.blit(TWO_SECOND_SURFACE, TWO_SECOND_RECT)
+    DUMMY_WINDOW.blit(THREE_SECOND_SURFACE, THREE_SECOND_RECT)
 
     if ship_regen_1:
-        ship_regen_rate = 1000
+        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, EASY)
+        regen_rect = regen_text.get_rect(center=(288, 980))
+        DUMMY_WINDOW.blit(regen_text, regen_rect)
     elif ship_regen_2:
-        ship_regen_rate = 2000
+        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, YELLOW)
+        regen_rect = regen_text.get_rect(center=(288, 980))
+        DUMMY_WINDOW.blit(regen_text, regen_rect)
     elif ship_regen_3:
-        ship_regen_rate = 3000
-
-    asteroid_spawn_rate = 1200
-    red_bullets.clear()
-    asteroids_list.clear()
-    running = True
+        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, HARD)
+        regen_rect = regen_text.get_rect(center=(288, 980))
+        DUMMY_WINDOW.blit(regen_text, regen_rect)
 
 
-def active_game():  # Handles the relevant variables when a game is in session
-    global game_active, asteroids_list
-    if game_active:
-        # Spaceship
-        game_active = check_asteroid_collision(asteroids_list, red_bullets, red)
-
-        # Asteroids
-        asteroids_list = move_asteroids(asteroids_list)
-        draw_asteroids(asteroids_list)
-
-
-def regen_button_click(x, y, click):
+def regen_button_click(x, y, click):  # Handles the button clicks in the ship regeneration settings page
     global ship_regen_1, ship_regen_2, ship_regen_3, ship_regen_rate
     if ONE_SECOND_RECT.collidepoint(x, y) and click:
         ship_regen_rate = 1000
@@ -359,27 +304,29 @@ def ship_regeneration_settings():  # Handles the ship regeneration settings page
         CLOCK.tick(FPS)
 
 
-def ship_regeneration_screen(regen_rate):  # Draws the relevant ship regeneration buttons onscreen
-    DUMMY_WINDOW.blit(SHIP_REGENERATION_SCREEN, (0, 0))
-    DUMMY_WINDOW.blit(ONE_SECOND_SURFACE, ONE_SECOND_RECT)
-    DUMMY_WINDOW.blit(TWO_SECOND_SURFACE, TWO_SECOND_RECT)
-    DUMMY_WINDOW.blit(THREE_SECOND_SURFACE, THREE_SECOND_RECT)
+def ship_health_screen(ship_health):  # Draws the relevant ship health variables onto the settings page
+    DUMMY_WINDOW.blit(SHIP_HEALTH_SCREEN, (0, 0))
+    DUMMY_WINDOW.blit(TWENTY_FIVE_SURFACE, TWENTY_FIVE_RECT)
+    DUMMY_WINDOW.blit(FIFTY_SURFACE, FIFTY_RECT)
+    DUMMY_WINDOW.blit(SEVENTY_FIVE_SURFACE, SEVENTY_FIVE_RECT)
 
-    if ship_regen_1:
-        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, EASY)
-        regen_rect = regen_text.get_rect(center=(288, 980))
-        DUMMY_WINDOW.blit(regen_text, regen_rect)
-    elif ship_regen_2:
-        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, YELLOW)
-        regen_rect = regen_text.get_rect(center=(288, 980))
-        DUMMY_WINDOW.blit(regen_text, regen_rect)
-    elif ship_regen_3:
-        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, HARD)
-        regen_rect = regen_text.get_rect(center=(288, 980))
-        DUMMY_WINDOW.blit(regen_text, regen_rect)
+    if ship_health_25:
+        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, HARD)
+        health_rect = health_text.get_rect(center=(288, 960))
+        DUMMY_WINDOW.blit(health_text, health_rect)
+
+    elif ship_health_50:
+        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, YELLOW)
+        health_rect = health_text.get_rect(center=(288, 960))
+        DUMMY_WINDOW.blit(health_text, health_rect)
+
+    elif ship_health_75:
+        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, EASY)
+        health_rect = health_text.get_rect(center=(288, 960))
+        DUMMY_WINDOW.blit(health_text, health_rect)
 
 
-def health_button_click(x, y, click):
+def health_button_click(x, y, click):  # Handles the button clicks in the health settings page
     global damaged_ship_health, ship_health_25, ship_health_50, ship_health_75
     if TWENTY_FIVE_RECT.collidepoint(x, y) and click:
         damaged_ship_health = 25
@@ -400,7 +347,7 @@ def health_button_click(x, y, click):
         ship_health_75 = True
 
 
-def ship_health_settings():
+def ship_health_settings():  # Handles the ship health settings logic
     global damaged_ship_health, ship_health_25, ship_health_50, ship_health_75
     ship_health_state = True
     while ship_health_state:
@@ -425,32 +372,14 @@ def ship_health_settings():
         scale_window()
         CLOCK.tick(FPS)
 
-    return damaged_ship_health
+
+def settings_screen():  # Shows the options screen to the player
+    DUMMY_WINDOW.blit(SETTINGS_SCREEN_SURFACE, (0, 0))
+    DUMMY_WINDOW.blit(SHIP_HEALTH_BUTTON, SHIP_HEALTH_RECT)
+    DUMMY_WINDOW.blit(SHIP_REGENERATION_BUTTON, SHIP_REGENERATION_RECT)
 
 
-def ship_health_screen(ship_health):
-    DUMMY_WINDOW.blit(SHIP_HEALTH_SCREEN, (0, 0))
-    DUMMY_WINDOW.blit(TWENTY_FIVE_SURFACE, TWENTY_FIVE_RECT)
-    DUMMY_WINDOW.blit(FIFTY_SURFACE, FIFTY_RECT)
-    DUMMY_WINDOW.blit(SEVENTY_FIVE_SURFACE, SEVENTY_FIVE_RECT)
-
-    if ship_health_25:
-        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, HARD)
-        health_rect = health_text.get_rect(center=(288, 960))
-        DUMMY_WINDOW.blit(health_text, health_rect)
-
-    elif ship_health_50:
-        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, YELLOW)
-        health_rect = health_text.get_rect(center=(288, 960))
-        DUMMY_WINDOW.blit(health_text, health_rect)
-
-    elif ship_health_75:
-        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, EASY)
-        health_rect = health_text.get_rect(center=(288, 960))
-        DUMMY_WINDOW.blit(health_text, health_rect)
-
-
-def settings_button_click(x, y, click):
+def settings_button_click(x, y, click):  # Handles the button clicks in the settings page
     if SHIP_REGENERATION_RECT.collidepoint(x, y) and click:
         ship_regeneration_settings()
 
@@ -458,7 +387,7 @@ def settings_button_click(x, y, click):
         ship_health_settings()
 
 
-def settings():
+def settings():  # Handles the settings logic in the settings page
     global settings_state
     settings_state = True
     while settings_state:
@@ -482,22 +411,16 @@ def settings():
         CLOCK.tick(FPS)
 
 
-def settings_screen():  # Shows the options screen to the player
-    DUMMY_WINDOW.blit(SETTINGS_SCREEN_SURFACE, (0, 0))
-    DUMMY_WINDOW.blit(SHIP_HEALTH_BUTTON, SHIP_HEALTH_RECT)
-    DUMMY_WINDOW.blit(SHIP_REGENERATION_BUTTON, SHIP_REGENERATION_RECT)
-
-
-def pause_button_click(x, y, click):
-    if OPTIONS_BUTTON_RECT.collidepoint((x, y)) and click:
-        settings()
-
-
 def pause_game_screen():  # Draws the paused screen assets
     draw_stuff(red, red_bullets, red_score, damaged_ship_health)
     draw_asteroids(asteroids_list)
     DUMMY_WINDOW.blit(RESUME_BUTTON_SURFACE, (82, 442))
     DUMMY_WINDOW.blit(OPTIONS_BUTTON_SURFACE, OPTIONS_BUTTON_RECT)
+
+
+def pause_button_click(x, y, click):  # Handles the button clicks in the paused screen
+    if OPTIONS_BUTTON_RECT.collidepoint((x, y)) and click:
+        settings()
 
 
 def pause_game():  # Handles the paused screen logic
@@ -527,42 +450,116 @@ def pause_game():  # Handles the paused screen logic
         CLOCK.tick(FPS)
 
 
+def game_clear():  # Clears the relevant variables to start a new game session
+    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets, asteroids_list, running, \
+        ship_regen_rate
+    game_active = True
+    red_score = 0
+
+    if ship_health_25:
+        damaged_ship_health = 25
+    elif ship_health_50:
+        damaged_ship_health = 50
+    elif ship_health_75:
+        damaged_ship_health = 75
+
+    if ship_regen_1:
+        ship_regen_rate = 1000
+    elif ship_regen_2:
+        ship_regen_rate = 2000
+    elif ship_regen_3:
+        ship_regen_rate = 3000
+
+    asteroid_spawn_rate = 2000
+    red_bullets.clear()
+    asteroids_list.clear()
+    running = True
+
+
+def active_game():  # Handles the relevant variables when a game is in session
+    global game_active, asteroids_list
+    if game_active:
+        # Spaceship
+        game_active = check_asteroid_collision(asteroids_list, red_bullets, red)
+
+        # Asteroids
+        asteroids_list = move_asteroids(asteroids_list)
+        draw_asteroids(asteroids_list)
+
+
+def game_over():  # Displays the game over screen
+    global red, high_score
+    if not game_active:
+        DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
+        DUMMY_WINDOW.blit(LOGO, (60, 25))
+        DUMMY_WINDOW.blit(YOU_LOSE_SURFACE, (6, 292))
+        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
+
+        high_score = update_score(red_score, high_score)
+        score_display()
+
+        red.center = (308, 900)
+
+
+def ship_death(health):  # Causes the game session to end once the ship health reaches 0%
+    global game_active
+    if health <= 0:
+        game_active = False
+        game_over()
+
+
+def you_win():  # Displays the victory screen
+    global game_active, high_score
+    if damaged_ship_health >= 100:
+        game_active = False
+        DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
+        DUMMY_WINDOW.blit(LOGO, (60, 25))
+        DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
+        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
+
+        high_score = update_score(red_score, high_score)
+        score_display()
+
+
+def running_loop():  # The main running loop that handles asteroid creation and collision among others
+    global angle, asteroid_spawn_rate, damaged_ship_health
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_quit()
+
+        if event.type == ASTEROID_HIT:
+            remove_asteroid(asteroids_list)
+
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and not game_active:
+            game_clear()
+
+        if game_active and not paused:
+            angle -= 15
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
+                bullet = pygame.Rect(red.x - 9, red.y - 20, 17, 70)
+                red_bullets.append(bullet)
+                LASER_SOUND.play()
+
+            if event.type == SPAWN_ASTEROID:
+                asteroids_list.append(create_asteroid())
+
+            if event.type == ASTEROID_SPAWN_RATE_PLUS:
+                asteroid_spawn_rate //= 2
+                spawn_asteroid(asteroid_spawn_rate)
+
+            if event.type == INCREASE_SHIP_HEALTH:
+                damaged_ship_health += 1
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                pause_game()
+
+
 def main():  # The main game loop that handles the majority of the game logic
     global damaged_ship_health, asteroid_spawn_rate, angle
     asteroid = ASTEROID_RECT
 
     while running:
-        for events in pygame.event.get():
-            if events.type == pygame.QUIT:
-                game_quit()
-
-            if game_active and not paused:
-                angle -= 15
-                if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
-                    bullet = pygame.Rect(red.x - 9, red.y - 20, 17, 70)
-                    red_bullets.append(bullet)
-                    LASER_SOUND.play()
-
-                if events.type == SPAWN_ASTEROID:
-                    asteroids_list.append(create_asteroid())
-                    print(asteroids_list)
-
-                if events.type == ASTEROID_SPAWN_RATE_PLUS:
-                    asteroid_spawn_rate //= 2
-                    spawn_asteroid(asteroid_spawn_rate)
-
-                if events.type == INCREASE_SHIP_HEALTH:
-                    damaged_ship_health += 1
-
-                if events.type == pygame.KEYDOWN and events.key == pygame.K_ESCAPE:
-                    pause_game()
-
-            if events.type == ASTEROID_HIT:
-                for asteroid in asteroids_list:
-                    asteroids_list.remove(asteroid)
-
-            if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and not game_active:
-                game_clear()
+        running_loop()
 
         draw_stuff(red, red_bullets, red_score, damaged_ship_health)
 
@@ -584,6 +581,17 @@ def main():  # The main game loop that handles the majority of the game logic
         CLOCK.tick(FPS)
 
 
+def game_quit():  # Quits the game when prompted
+    pygame.quit()
+    sys.exit()
+
+
+def scale_window():  # Scales the game window and assets to fit the user's monitor dimensions
+    frame = pygame.transform.scale(DUMMY_WINDOW, SCREEN_DIMENSIONS)
+    WINDOW.blit(frame, frame.get_rect())
+    pygame.display.flip()
+
+
 # Constants
 pygame.init()
 MONITOR = pygame.display.Info()
@@ -602,6 +610,7 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 EASY, MEDIUM, HARD = (98, 255, 183), (97, 174, 255), (255, 116, 123)
 
+# Miscellaneous
 FPS = 60
 VELOCITY = 10
 BULLET_VELOCITY = 7
@@ -614,7 +623,7 @@ SCORE_FONT = pygame.font.SysFont("comic_sans", 40, True)
 REGEN_FONT = pygame.font.SysFont("Impact", 30)
 
 pygame.display.set_caption("Logang Shooter")
-asteroid_spawn_rate = 1200
+asteroid_spawn_rate = 2000
 increased_spawn_rate = 15000
 ship_regen_rate = 2000
 
