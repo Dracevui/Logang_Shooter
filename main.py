@@ -276,10 +276,25 @@ def ship_death(health):  # Causes the game session to end once the ship health r
 
 
 def game_clear():  # Clears the relevant variables to start a new game session
-    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets, asteroids_list, running
+    global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets, asteroids_list, running, \
+        ship_regen_rate
     game_active = True
     red_score = 0
-    damaged_ship_health = 50
+
+    if ship_health_25:
+        damaged_ship_health = 25
+    elif ship_health_50:
+        damaged_ship_health = 50
+    elif ship_health_75:
+        damaged_ship_health = 75
+
+    if ship_regen_1:
+        ship_regen_rate = 1000
+    elif ship_regen_2:
+        ship_regen_rate = 2000
+    elif ship_regen_3:
+        ship_regen_rate = 3000
+
     asteroid_spawn_rate = 1200
     red_bullets.clear()
     asteroids_list.clear()
@@ -297,8 +312,8 @@ def active_game():  # Handles the relevant variables when a game is in session
         draw_asteroids(asteroids_list)
 
 
-def ship_regeneration_settings():
-    global ship_regen_rate
+def ship_regeneration_settings():  # Handles the ship regeneration settings page logic
+    global ship_regen_rate, ship_regen_1, ship_regen_2, ship_regen_3
     ship_regeneration_state = True
     while ship_regeneration_state:
         ship_regeneration_screen(ship_regen_rate)
@@ -319,18 +334,27 @@ def ship_regeneration_settings():
 
         if ONE_SECOND_RECT.collidepoint(mx, my) and click:
             ship_regen_rate = 1000
+            ship_regen_1 = True
+            ship_regen_2 = False
+            ship_regen_3 = False
 
         if TWO_SECOND_RECT.collidepoint(mx, my) and click:
             ship_regen_rate = 2000
+            ship_regen_1 = False
+            ship_regen_2 = True
+            ship_regen_3 = False
 
         if THREE_SECOND_RECT.collidepoint(mx, my) and click:
             ship_regen_rate = 3000
+            ship_regen_1 = False
+            ship_regen_2 = False
+            ship_regen_3 = True
 
         scale_window()
         CLOCK.tick(FPS)
 
 
-def ship_regeneration_screen(regen_rate):
+def ship_regeneration_screen(regen_rate):  # Draws the relevant ship regeneration buttons onscreen
     DUMMY_WINDOW.blit(SHIP_REGENERATION_SCREEN, (0, 0))
     DUMMY_WINDOW.blit(ONE_SECOND_SURFACE, ONE_SECOND_RECT)
     DUMMY_WINDOW.blit(TWO_SECOND_SURFACE, TWO_SECOND_RECT)
@@ -342,7 +366,7 @@ def ship_regeneration_screen(regen_rate):
 
 
 def ship_health_settings():
-    global damaged_ship_health
+    global damaged_ship_health, ship_health_25, ship_health_50, ship_health_75
     ship_health_state = True
     while ship_health_state:
         ship_health_screen(damaged_ship_health)
@@ -363,15 +387,26 @@ def ship_health_settings():
 
         if TWENTY_FIVE_RECT.collidepoint(mx, my) and click:
             damaged_ship_health = 25
+            ship_health_25 = True
+            ship_health_50 = False
+            ship_health_75 = False
 
         if FIFTY_RECT.collidepoint(mx, my) and click:
             damaged_ship_health = 50
+            ship_health_25 = False
+            ship_health_50 = True
+            ship_health_75 = False
 
         if SEVENTY_FIVE_RECT.collidepoint(mx, my) and click:
             damaged_ship_health = 75
+            ship_health_25 = False
+            ship_health_50 = False
+            ship_health_75 = True
 
         scale_window()
         CLOCK.tick(FPS)
+
+    return damaged_ship_health
 
 
 def ship_health_screen(ship_health):
@@ -438,7 +473,7 @@ def pause_game():  # Handles the paused screen logic
 
         for event in pygame.event.get():
             click = True if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 \
-                or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE else False
+                            or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE else False
 
             if event.type == pygame.QUIT:
                 game_quit()
@@ -656,6 +691,15 @@ damaged_ship_health = 50
 
 asteroids_list = []
 asteroid_location = multiples(12, 563, 50)
+
+ship_regen_1 = False
+ship_regen_2 = True
+ship_regen_3 = False
+
+ship_health_25 = False
+ship_health_50 = True
+ship_health_75 = False
+
 
 # Start of the main game...
 instructions_screen()
