@@ -239,9 +239,9 @@ def update_score(score, hi_score):  # Handles the logic of updating the high sco
 
 def ship_regeneration_screen(regen_rate):  # Draws the relevant ship regeneration buttons onscreen
     DUMMY_WINDOW.blit(SHIP_REGENERATION_SCREEN, (0, 0))
-    DUMMY_WINDOW.blit(ONE_SECOND_SURFACE, ONE_SECOND_RECT)
-    DUMMY_WINDOW.blit(TWO_SECOND_SURFACE, TWO_SECOND_RECT)
-    DUMMY_WINDOW.blit(THREE_SECOND_SURFACE, THREE_SECOND_RECT)
+    DUMMY_WINDOW.blit(ONE_SECOND_SURFACE, (189, 598))
+    DUMMY_WINDOW.blit(TWO_SECOND_SURFACE, (160, 748))
+    DUMMY_WINDOW.blit(THREE_SECOND_SURFACE, (180, 898))
 
     if ship_regen_1:
         regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, EASY)
@@ -306,9 +306,9 @@ def ship_regeneration_settings():  # Handles the ship regeneration settings page
 
 def ship_health_screen(ship_health):  # Draws the relevant ship health variables onto the settings page
     DUMMY_WINDOW.blit(SHIP_HEALTH_SCREEN, (0, 0))
-    DUMMY_WINDOW.blit(TWENTY_FIVE_SURFACE, TWENTY_FIVE_RECT)
-    DUMMY_WINDOW.blit(FIFTY_SURFACE, FIFTY_RECT)
-    DUMMY_WINDOW.blit(SEVENTY_FIVE_SURFACE, SEVENTY_FIVE_RECT)
+    DUMMY_WINDOW.blit(TWENTY_FIVE_SURFACE, (170, 418))
+    DUMMY_WINDOW.blit(FIFTY_SURFACE, (136, 618))
+    DUMMY_WINDOW.blit(SEVENTY_FIVE_SURFACE, (172, 818))
 
     if ship_health_25:
         health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, HARD)
@@ -375,8 +375,8 @@ def ship_health_settings():  # Handles the ship health settings logic
 
 def settings_screen():  # Shows the options screen to the player
     DUMMY_WINDOW.blit(SETTINGS_SCREEN_SURFACE, (0, 0))
-    DUMMY_WINDOW.blit(SHIP_HEALTH_BUTTON, SHIP_HEALTH_RECT)
-    DUMMY_WINDOW.blit(SHIP_REGENERATION_BUTTON, SHIP_REGENERATION_RECT)
+    DUMMY_WINDOW.blit(SHIP_HEALTH_BUTTON, (165, 418))
+    DUMMY_WINDOW.blit(SHIP_REGENERATION_BUTTON, (96, 718))
 
 
 def settings_button_click(x, y, click):  # Handles the button clicks in the settings page
@@ -415,7 +415,7 @@ def pause_game_screen():  # Draws the paused screen assets
     draw_stuff(red, red_bullets, red_score, damaged_ship_health)
     draw_asteroids(asteroids_list)
     DUMMY_WINDOW.blit(RESUME_BUTTON_SURFACE, (82, 442))
-    DUMMY_WINDOW.blit(OPTIONS_BUTTON_SURFACE, OPTIONS_BUTTON_RECT)
+    DUMMY_WINDOW.blit(OPTIONS_BUTTON_SURFACE, (365, 10))
 
 
 def pause_button_click(x, y, click):  # Handles the button clicks in the paused screen
@@ -661,37 +661,38 @@ SPACEBAR_AGAIN_INSTRUCTIONS = pygame.image.load("assets/press_spacebar.png")
 
 # Buttons
 RESUME_BUTTON_SURFACE = pygame.image.load("assets/resume_button.png")
-RESUME_BUTTON_RECT = RESUME_BUTTON_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+RESUME_BUTTON_RECT = RESUME_BUTTON_SURFACE.get_rect(center=WINDOW.get_rect().center)
 
 RESUME_HOVER_SURFACE = pygame.image.load("assets/resume_hover.png")
 RESUME_HOVER_RECT = RESUME_HOVER_SURFACE.get_rect(center=(288, 512))
 
 OPTIONS_BUTTON_SURFACE = pygame.image.load("assets/button_options.png")
-OPTIONS_BUTTON_RECT = OPTIONS_BUTTON_SURFACE.get_rect(topright=(566, 10))
+OPTIONS_BUTTON_RECT = OPTIONS_BUTTON_SURFACE.get_rect(
+    topright=WINDOW.get_rect().topright)
 
 SHIP_HEALTH_BUTTON = pygame.image.load("assets/button_ship-health.png")
-SHIP_HEALTH_RECT = SHIP_HEALTH_BUTTON.get_rect(center=(288, 450))
+SHIP_HEALTH_RECT = SHIP_HEALTH_BUTTON.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT * 0.44))
 
 SHIP_REGENERATION_BUTTON = pygame.image.load("assets/button_ship-regeneration.png")
-SHIP_REGENERATION_RECT = SHIP_REGENERATION_BUTTON.get_rect(center=(288, 750))
+SHIP_REGENERATION_RECT = SHIP_REGENERATION_BUTTON.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT * 0.73))
 
 ONE_SECOND_SURFACE = pygame.image.load("assets/button_1s.png")
-ONE_SECOND_RECT = ONE_SECOND_SURFACE.get_rect(center=(288, 620))
+ONE_SECOND_RECT = ONE_SECOND_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT * 0.605))
 
 TWO_SECOND_SURFACE = pygame.image.load("assets/button_2s.png")
-TWO_SECOND_RECT = TWO_SECOND_SURFACE.get_rect(center=(288, 770))
+TWO_SECOND_RECT = TWO_SECOND_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT * 0.75))
 
 THREE_SECOND_SURFACE = pygame.image.load("assets/button_3s.png")
-THREE_SECOND_RECT = THREE_SECOND_SURFACE.get_rect(center=(288, 920))
+THREE_SECOND_RECT = THREE_SECOND_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT * 0.9))
 
 TWENTY_FIVE_SURFACE = pygame.image.load("assets/button_25.png")
-TWENTY_FIVE_RECT = TWENTY_FIVE_SURFACE.get_rect(center=(288, 450))
+TWENTY_FIVE_RECT = TWENTY_FIVE_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT * 0.44))
 
 FIFTY_SURFACE = pygame.image.load("assets/button_50.png")
-FIFTY_RECT = FIFTY_SURFACE.get_rect(center=(288, 650))
+FIFTY_RECT = FIFTY_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT * 0.63))
 
 SEVENTY_FIVE_SURFACE = pygame.image.load("assets/button_75.png")
-SEVENTY_FIVE_RECT = SEVENTY_FIVE_SURFACE.get_rect(center=(288, 850))
+SEVENTY_FIVE_RECT = SEVENTY_FIVE_SURFACE.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT * 0.83))
 
 # Backgrounds
 SETTINGS_SCREEN_SURFACE = pygame.image.load("assets/settings_screen.png")
