@@ -360,9 +360,18 @@ def ship_regeneration_screen(regen_rate):  # Draws the relevant ship regeneratio
     DUMMY_WINDOW.blit(TWO_SECOND_SURFACE, TWO_SECOND_RECT)
     DUMMY_WINDOW.blit(THREE_SECOND_SURFACE, THREE_SECOND_RECT)
 
-    regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, GREEN)
-    regen_rect = regen_text.get_rect(center=(288, 980))
-    DUMMY_WINDOW.blit(regen_text, regen_rect)
+    if ship_regen_1:
+        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, EASY)
+        regen_rect = regen_text.get_rect(center=(288, 980))
+        DUMMY_WINDOW.blit(regen_text, regen_rect)
+    elif ship_regen_2:
+        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, MEDIUM)
+        regen_rect = regen_text.get_rect(center=(288, 980))
+        DUMMY_WINDOW.blit(regen_text, regen_rect)
+    elif ship_regen_3:
+        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, HARD)
+        regen_rect = regen_text.get_rect(center=(288, 980))
+        DUMMY_WINDOW.blit(regen_text, regen_rect)
 
 
 def ship_health_settings():
@@ -415,9 +424,20 @@ def ship_health_screen(ship_health):
     DUMMY_WINDOW.blit(FIFTY_SURFACE, FIFTY_RECT)
     DUMMY_WINDOW.blit(SEVENTY_FIVE_SURFACE, SEVENTY_FIVE_RECT)
 
-    health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, WHITE)
-    health_rect = health_text.get_rect(center=(288, 960))
-    DUMMY_WINDOW.blit(health_text, health_rect)
+    if ship_health_25:
+        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, HARD)
+        health_rect = health_text.get_rect(center=(288, 960))
+        DUMMY_WINDOW.blit(health_text, health_rect)
+
+    elif ship_health_50:
+        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, MEDIUM)
+        health_rect = health_text.get_rect(center=(288, 960))
+        DUMMY_WINDOW.blit(health_text, health_rect)
+
+    elif ship_health_75:
+        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, EASY)
+        health_rect = health_text.get_rect(center=(288, 960))
+        DUMMY_WINDOW.blit(health_text, health_rect)
 
 
 def settings():
@@ -461,6 +481,7 @@ def pause_game_screen():  # Draws the paused screen assets
 
 
 def pause_game():  # Handles the paused screen logic
+    global paused
     paused = True
     while paused:
         pause_game_screen()
@@ -497,7 +518,7 @@ def main():  # The main game loop that handles the majority of the game logic
             if events.type == pygame.QUIT:
                 game_quit()
 
-            if game_active:
+            if game_active and not paused:
                 angle -= 15
                 if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and len(red_bullets) < MAX_BULLETS:
                     bullet = pygame.Rect(red.x - 9, red.y - 20, 17, 70)
@@ -512,15 +533,15 @@ def main():  # The main game loop that handles the majority of the game logic
                     asteroid_spawn_rate //= 2
                     spawn_asteroid(asteroid_spawn_rate)
 
+                if events.type == INCREASE_SHIP_HEALTH:
+                    damaged_ship_health += 1
+
                 if events.type == pygame.KEYDOWN and events.key == pygame.K_ESCAPE:
                     pause_game()
 
             if events.type == ASTEROID_HIT:
                 for asteroid in asteroids_list:
                     asteroids_list.remove(asteroid)
-
-            if events.type == INCREASE_SHIP_HEALTH:
-                damaged_ship_health += 1
 
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE and not game_active:
                 game_clear()
@@ -679,6 +700,7 @@ pygame.display.set_icon(ICON)
 # Game Variables
 running = False
 game_active = False
+paused = False
 red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
