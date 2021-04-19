@@ -459,6 +459,7 @@ def settings_button_click(x, y, click):
 
 
 def settings():
+    global settings_state
     settings_state = True
     while settings_state:
         settings_screen()
@@ -500,7 +501,7 @@ def pause_game_screen():  # Draws the paused screen assets
 
 
 def pause_game():  # Handles the paused screen logic
-    global paused
+    global paused, settings_state
     paused = True
     while paused:
         pause_game_screen()
@@ -512,8 +513,10 @@ def pause_game():  # Handles the paused screen logic
         for event in pygame.event.get():
             click = True if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 else False
 
-            paused = False if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE or \
-                RESUME_BUTTON_RECT.collidepoint((mx, my)) and click else True
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE or \
+                    RESUME_BUTTON_RECT.collidepoint((mx, my)) and click:
+                paused = False
+                settings_state = False
 
             if event.type == pygame.QUIT:
                 game_quit()
@@ -716,6 +719,7 @@ pygame.display.set_icon(ICON)
 running = False
 game_active = False
 paused = False
+settings_state = False
 red_bullets = []
 red = pygame.Rect(288, 900, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 red_score = 0
