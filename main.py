@@ -312,6 +312,27 @@ def active_game():  # Handles the relevant variables when a game is in session
         draw_asteroids(asteroids_list)
 
 
+def regen_button_click(x, y, click):
+    global ship_regen_1, ship_regen_2, ship_regen_3, ship_regen_rate
+    if ONE_SECOND_RECT.collidepoint(x, y) and click:
+        ship_regen_rate = 1000
+        ship_regen_1 = True
+        ship_regen_2 = False
+        ship_regen_3 = False
+
+    if TWO_SECOND_RECT.collidepoint(x, y) and click:
+        ship_regen_rate = 2000
+        ship_regen_1 = False
+        ship_regen_2 = True
+        ship_regen_3 = False
+
+    if THREE_SECOND_RECT.collidepoint(x, y) and click:
+        ship_regen_rate = 3000
+        ship_regen_1 = False
+        ship_regen_2 = False
+        ship_regen_3 = True
+
+
 def ship_regeneration_settings():  # Handles the ship regeneration settings page logic
     global ship_regen_rate, ship_regen_1, ship_regen_2, ship_regen_3
     ship_regeneration_state = True
@@ -332,23 +353,7 @@ def ship_regeneration_settings():  # Handles the ship regeneration settings page
             if event.type == pygame.QUIT:
                 game_quit()
 
-        if ONE_SECOND_RECT.collidepoint(mx, my) and click:
-            ship_regen_rate = 1000
-            ship_regen_1 = True
-            ship_regen_2 = False
-            ship_regen_3 = False
-
-        if TWO_SECOND_RECT.collidepoint(mx, my) and click:
-            ship_regen_rate = 2000
-            ship_regen_1 = False
-            ship_regen_2 = True
-            ship_regen_3 = False
-
-        if THREE_SECOND_RECT.collidepoint(mx, my) and click:
-            ship_regen_rate = 3000
-            ship_regen_1 = False
-            ship_regen_2 = False
-            ship_regen_3 = True
+        regen_button_click(mx, my, click)
 
         scale_window()
         CLOCK.tick(FPS)
@@ -365,13 +370,34 @@ def ship_regeneration_screen(regen_rate):  # Draws the relevant ship regeneratio
         regen_rect = regen_text.get_rect(center=(288, 980))
         DUMMY_WINDOW.blit(regen_text, regen_rect)
     elif ship_regen_2:
-        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, MEDIUM)
+        regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, YELLOW)
         regen_rect = regen_text.get_rect(center=(288, 980))
         DUMMY_WINDOW.blit(regen_text, regen_rect)
     elif ship_regen_3:
         regen_text = REGEN_FONT.render(f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, HARD)
         regen_rect = regen_text.get_rect(center=(288, 980))
         DUMMY_WINDOW.blit(regen_text, regen_rect)
+
+
+def health_button_click(x, y, click):
+    global damaged_ship_health, ship_health_25, ship_health_50, ship_health_75
+    if TWENTY_FIVE_RECT.collidepoint(x, y) and click:
+        damaged_ship_health = 25
+        ship_health_25 = True
+        ship_health_50 = False
+        ship_health_75 = False
+
+    if FIFTY_RECT.collidepoint(x, y) and click:
+        damaged_ship_health = 50
+        ship_health_25 = False
+        ship_health_50 = True
+        ship_health_75 = False
+
+    if SEVENTY_FIVE_RECT.collidepoint(x, y) and click:
+        damaged_ship_health = 75
+        ship_health_25 = False
+        ship_health_50 = False
+        ship_health_75 = True
 
 
 def ship_health_settings():
@@ -394,23 +420,7 @@ def ship_health_settings():
             if event.type == pygame.QUIT:
                 game_quit()
 
-        if TWENTY_FIVE_RECT.collidepoint(mx, my) and click:
-            damaged_ship_health = 25
-            ship_health_25 = True
-            ship_health_50 = False
-            ship_health_75 = False
-
-        if FIFTY_RECT.collidepoint(mx, my) and click:
-            damaged_ship_health = 50
-            ship_health_25 = False
-            ship_health_50 = True
-            ship_health_75 = False
-
-        if SEVENTY_FIVE_RECT.collidepoint(mx, my) and click:
-            damaged_ship_health = 75
-            ship_health_25 = False
-            ship_health_50 = False
-            ship_health_75 = True
+        health_button_click(mx, my, click)
 
         scale_window()
         CLOCK.tick(FPS)
@@ -430,7 +440,7 @@ def ship_health_screen(ship_health):
         DUMMY_WINDOW.blit(health_text, health_rect)
 
     elif ship_health_50:
-        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, MEDIUM)
+        health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, YELLOW)
         health_rect = health_text.get_rect(center=(288, 960))
         DUMMY_WINDOW.blit(health_text, health_rect)
 
@@ -438,6 +448,14 @@ def ship_health_screen(ship_health):
         health_text = REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, EASY)
         health_rect = health_text.get_rect(center=(288, 960))
         DUMMY_WINDOW.blit(health_text, health_rect)
+
+
+def settings_button_click(x, y, click):
+    if SHIP_REGENERATION_RECT.collidepoint(x, y) and click:
+        ship_regeneration_settings()
+
+    if SHIP_HEALTH_RECT.collidepoint(x, y) and click:
+        ship_health_settings()
 
 
 def settings():
@@ -457,11 +475,7 @@ def settings():
                 pause_game()
                 settings_state = False
 
-        if SHIP_REGENERATION_RECT.collidepoint(mx, my) and click:
-            ship_regeneration_settings()
-
-        if SHIP_HEALTH_RECT.collidepoint(mx, my) and click:
-            ship_health_settings()
+        settings_button_click(mx, my, click)
 
         scale_window()
         CLOCK.tick(FPS)
@@ -471,6 +485,11 @@ def settings_screen():  # Shows the options screen to the player
     DUMMY_WINDOW.blit(SETTINGS_SCREEN_SURFACE, (0, 0))
     DUMMY_WINDOW.blit(SHIP_HEALTH_BUTTON, SHIP_HEALTH_RECT)
     DUMMY_WINDOW.blit(SHIP_REGENERATION_BUTTON, SHIP_REGENERATION_RECT)
+
+
+def pause_button_click(x, y, click):
+    if OPTIONS_BUTTON_RECT.collidepoint((x, y)) and click:
+        settings()
 
 
 def pause_game_screen():  # Draws the paused screen assets
@@ -488,22 +507,18 @@ def pause_game():  # Handles the paused screen logic
 
         mx, my = pygame.mouse.get_pos()
 
-        resume_button = RESUME_BUTTON_RECT
-
         click = False
 
         for event in pygame.event.get():
-            click = True if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 \
-                            or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE else False
+            click = True if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 else False
+
+            paused = False if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE or \
+                RESUME_BUTTON_RECT.collidepoint((mx, my)) and click else True
 
             if event.type == pygame.QUIT:
                 game_quit()
 
-        if resume_button.collidepoint((mx, my)) and click:
-            paused = False
-
-        if OPTIONS_BUTTON_RECT.collidepoint((mx, my)) and click:
-            settings()
+        pause_button_click(mx, my, click)
 
         scale_window()
         CLOCK.tick(FPS)
