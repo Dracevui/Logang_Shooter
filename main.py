@@ -170,6 +170,7 @@ def start_screen():  # The start screen of the game
             if events.type == pygame.KEYDOWN and events.key == pygame.K_SPACE:
                 running = True
                 game_active = True
+                spawn_asteroid(2000, 7)
             if events.type == pygame.QUIT:
                 game_quit()
         draw_stuff(red, red_bullets, red_score, damaged_ship_health)
@@ -641,7 +642,6 @@ INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
 ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 
 # User Event Timers
-spawn_asteroid(2000, 7)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, ship_regen_rate)
 pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, increased_spawn_rate)
 
