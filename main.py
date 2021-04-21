@@ -32,8 +32,8 @@ def create_asteroid():  # Creates an asteroid in a random position and places it
     return top_asteroid
 
 
-def spawn_asteroid(rate):  # Custom User Event that spawns in asteroids at a set rate
-    pygame.time.set_timer(SPAWN_ASTEROID, rate)
+def spawn_asteroid(rate, loop):  # Custom User Event that spawns in asteroids at a set rate
+    pygame.time.set_timer(SPAWN_ASTEROID, rate, loop)
     return rate
 
 
@@ -72,6 +72,11 @@ def check_asteroid_collision(asteroids, bullets, spaceship):  # Handles the aste
             damaged_ship_health -= 2
             asteroids.remove(asteroid)
     return True
+
+
+def halve_rate(rate):  # Used to halve the asteroid spawning rate
+    rate //= 2
+    return rate
 
 
 def red_handle_movement(keys_press, redship):  # Moves the spaceship according to user input
@@ -540,12 +545,12 @@ def running_loop():  # The main running loop that handles asteroid creation and 
                 red_bullets.append(bullet)
                 LASER_SOUND.play()
 
+            if event.type == ASTEROID_SPAWN_RATE_PLUS:
+                asteroid_spawn_rate = halve_rate(asteroid_spawn_rate)
+                spawn_asteroid(asteroid_spawn_rate, 0)
+
             if event.type == SPAWN_ASTEROID:
                 asteroids_list.append(create_asteroid())
-
-            if event.type == ASTEROID_SPAWN_RATE_PLUS:
-                asteroid_spawn_rate //= 2
-                spawn_asteroid(asteroid_spawn_rate)
 
             if event.type == INCREASE_SHIP_HEALTH:
                 damaged_ship_health += 1
@@ -634,7 +639,7 @@ INCREASE_SHIP_HEALTH = pygame.USEREVENT + 3
 ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 
 # User Event Timers
-spawn_asteroid(asteroid_spawn_rate)
+spawn_asteroid(2000, 7)
 pygame.time.set_timer(INCREASE_SHIP_HEALTH, ship_regen_rate)
 pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, increased_spawn_rate)
 
