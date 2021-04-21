@@ -500,7 +500,7 @@ def game_over():  # Displays the game over screen
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         DUMMY_WINDOW.blit(LOGO, (60, 25))
         DUMMY_WINDOW.blit(YOU_LOSE_SURFACE, (6, 292))
-        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
+        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 670))
 
         high_score = update_score(red_score, high_score)
         score_display()
