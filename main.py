@@ -476,6 +476,9 @@ def game_clear():  # Clears the relevant variables to start a new game session
         ship_regen_rate = 3000
 
     asteroid_spawn_rate = 2000
+
+    spawn_asteroid(2000, 7)
+
     red_bullets.clear()
     asteroids_list.clear()
     running = True
