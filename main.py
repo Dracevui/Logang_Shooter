@@ -458,8 +458,9 @@ def pause_game():  # Handles the paused screen logic
 def game_clear():  # Clears the relevant variables to start a new game session
     global game_active, red_score, damaged_ship_health, asteroid_spawn_rate, red_bullets, asteroids_list, running, \
         ship_regen_rate
-    game_active = True
-    red_score = 0
+    asteroid_spawn_rate = 2000
+
+    spawn_asteroid(2000, 7)
 
     if ship_health_25:
         damaged_ship_health = 25
@@ -475,12 +476,10 @@ def game_clear():  # Clears the relevant variables to start a new game session
     elif ship_regen_3:
         ship_regen_rate = 3000
 
-    asteroid_spawn_rate = 2000
-
-    spawn_asteroid(2000, 7)
-
+    red_score = 0
     red_bullets.clear()
     asteroids_list.clear()
+    game_active = True
     running = True
 
 
@@ -538,7 +537,7 @@ def running_loop():  # The main running loop that handles asteroid creation and 
         if event.type == ASTEROID_HIT:
             remove_asteroid(asteroids_list)
 
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and not game_active:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_r and not game_active:
             game_clear()
 
         if game_active and not paused:
