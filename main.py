@@ -647,7 +647,7 @@ pygame.time.set_timer(ASTEROID_SPAWN_RATE_PLUS, increased_spawn_rate)
 
 # Asset Files
 BACKGROUND_SURFACE = pygame.transform.scale((pygame.image.load("assets/space.png")), (576, 1024))
-RED_SPACESHIP_IMAGE = pygame.image.load("assets/spaceship_red.png").convert_alpha()
+RED_SPACESHIP_IMAGE = pygame.transform.scale((pygame.image.load("assets/spaceship.png").convert_alpha()), (500, 413))
 RED_SPACESHIP = pygame.transform.rotate(
     pygame.transform.scale(RED_SPACESHIP_IMAGE, (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)), 180
 )
