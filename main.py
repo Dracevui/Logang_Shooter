@@ -27,10 +27,17 @@ def game_quit():  # Quits the game when prompted
 
 
 class Asteroid:
-    def __init__(self):
-        # Class Imports
-        self.game = game
-        self.spaceship = spaceship
+    def __init__(self, damaged_health, bg_surface, angle, parent_screen,
+                 death_sound, score, explosion_surface, laser_hit_sound, ship_damage_sound):
+        self.damaged_health = damaged_health
+        self.bg_surface = bg_surface
+        self.angle = angle
+        self.parent_screen = parent_screen
+        self.death_sound = death_sound
+        self.score = score
+        self.explosion_surface = explosion_surface
+        self.laser_hit_sound = laser_hit_sound
+        self.ship_damage_sound = ship_damage_sound
 
         # Variables
         self.asteroid_spawn_rate = 2000
@@ -39,7 +46,6 @@ class Asteroid:
         self.asteroid_location = multiples(12, 563, 50)
 
         # User Events
-        self.ASTEROID_HIT = pygame.USEREVENT + 1
         self.SPAWN_ASTEROID = pygame.USEREVENT + 2
         self.ASTEROID_SPAWN_RATE_PLUS = pygame.USEREVENT + 4
 
@@ -73,7 +79,7 @@ class Asteroid:
         return rate
 
     def change_asteroid_pos(self, ast_rect, index):  # Changes the initial starting angle of the created asteroid
-        if ast_rect.midbottom > self.game.BACKGROUND_SURFACE.get_rect().midtop:
+        if ast_rect.midbottom > self.bg_surface.get_rect().midtop:
             changed_asteroid = self.rotate_asteroid(self.ASTEROID_SURFACE, index)
             return changed_asteroid
 
@@ -88,33 +94,38 @@ class Asteroid:
 
     def draw_asteroids(self, asteroids):  # Draws the asteroids onto the game screen
         for asteroid in asteroids:
-            rotated_asteroid = self.rotate_asteroid(self.ASTEROID_SURFACE, self.game.angle)
-            self.game.DUMMY_WINDOW.blit(rotated_asteroid, asteroid)
+            rotated_asteroid = self.rotate_asteroid(self.ASTEROID_SURFACE, self.angle)
+            self.parent_screen.blit(rotated_asteroid, asteroid)
 
     def check_asteroid_collision(self, asteroids, bullets, spaceship):  # Handles the asteroid collision physics
         for asteroid in asteroids:
             if spaceship.colliderect(asteroid):
-                pygame.mixer.Channel(1).play(self.game.DEATH_SOUND)
+                pygame.mixer.Channel(1).play(self.death_sound)
                 return False
             for bullet in bullets:
                 if bullet.colliderect(asteroid):
-                    self.game.red_score += 1
-                    self.game.DUMMY_WINDOW.blit(self.game.EXPLOSION_SURFACE, asteroid)
+                    self.score += 1
+                    self.parent_screen.blit(self.explosion_surface, asteroid)
                     asteroids.remove(asteroid)
                     bullets.remove(bullet)
-                    pygame.mixer.Channel(2).play(self.game.LASER_HIT)
+                    pygame.mixer.Channel(2).play(self.laser_hit_sound)
             if asteroid.top > 1024:
-                pygame.mixer.Channel(3).play(self.game.SHIP_DAMAGE)
-                self.spaceship.damaged_ship_health -= 2
+                pygame.mixer.Channel(3).play(self.ship_damage_sound)
+                self.damaged_health -= 2
                 asteroids.remove(asteroid)
         return True
 
 
 class Spaceship:
-    def __init__(self):
-        # Class Imports
-        self.game = game
-        self.asteroid = asteroid
+    def __init__(self, asteroid_hit_event, game_active, game_over, score_font, green, yellow, orange, red_colour):
+        self.asteroid_hit_event = asteroid_hit_event
+        self.game_active = game_active
+        self.game_over = game_over
+        self.score_font = score_font
+        self.green = green
+        self.yellow = yellow
+        self.orange = orange
+        self.red_colour = red_colour
 
         # Constants
         self.VELOCITY = 10
@@ -156,26 +167,26 @@ class Spaceship:
 
     def ship_death(self, health):  # Causes the game session to end once the ship health reaches 0%
         if health <= 0:
-            self.game.game_active = False
-            self.game.game_over()
+            self.game_active = False
+            self.game_over()
 
     def ship_health_colour(
             self, colour_choice, health):  # Changes the colour of the ship's health depending on its value
         if colour_choice == "Green":
-            ship_health_text = self.game.SCORE_FONT.render(f"Ship Health: {health}%", True, self.game.GREEN)
+            ship_health_text = self.score_font.render(f"Ship Health: {health}%", True, self.green)
             return ship_health_text
         elif colour_choice == "Yellow":
-            ship_health_text = self.game.SCORE_FONT.render(f"Ship Health: {health}%", True, self.game.YELLOW)
+            ship_health_text = self.score_font.render(f"Ship Health: {health}%", True, self.yellow)
             return ship_health_text
         elif colour_choice == "Orange":
-            ship_health_text = self.game.SCORE_FONT.render(f"Ship Health: {health}%", True, self.game.ORANGE)
+            ship_health_text = self.score_font.render(f"Ship Health: {health}%", True, self.orange)
             return ship_health_text
         elif colour_choice == "Red":
-            ship_health_text = self.game.SCORE_FONT.render(f"Ship Health: {health}%", True, self.game.RED)
+            ship_health_text = self.score_font.render(f"Ship Health: {health}%", True, self.red_colour)
             return ship_health_text
 
     def red_handle_movement(self, keys_press, redship):  # Moves the spaceship according to user input
-        if self.game.game_active:
+        if self.game_active:
             if keys_press[pygame.K_LEFT] and redship.left - self.VELOCITY > 20:  # LEFT
                 redship.x -= self.VELOCITY
             if keys_press[pygame.K_RIGHT] and redship.right - self.VELOCITY < 596:  # RIGHT
@@ -189,17 +200,42 @@ class Spaceship:
         for bullet in red_bullet:
             bullet.y -= self.BULLET_VELOCITY
             if asteroid.colliderect(bullet):
-                pygame.event.post(pygame.event.Event(self.asteroid.ASTEROID_HIT))
+                pygame.event.post(pygame.event.Event(self.asteroid_hit_event))
             elif bullet.y < 0:
                 red_bullet.remove(bullet)
 
 
 class Settings:
-    def __init__(self):
-        # Class Imports
-        self.game = game
-        self.spaceship = spaceship
-        self.asteroid = asteroid
+    def __init__(
+            self, draw_asteroids, asteroid_list, ship_regen_1, ship_regen_2, ship_regen_3, ship_regen_rate,
+            ship_health_25, ship_health_50, ship_health_75, damaged_ship_health, space_ship, red_bullets, window,
+            window_width, window_height, scale_window, clock, fps, parent_screen, regen_font, easy, yellow, hard,
+            draw_stuff, red_score):
+        self.draw_asteroids = draw_asteroids
+        self.asteroid_list = asteroid_list
+        self.ship_regen_1 = ship_regen_1
+        self.ship_regen_2 = ship_regen_2
+        self.ship_regen_3 = ship_regen_3
+        self.ship_regen_rate = ship_regen_rate
+        self.ship_health_25 = ship_health_25
+        self.ship_health_50 = ship_health_50
+        self.ship_health_75 = ship_health_75
+        self.damaged_ship_health = damaged_ship_health
+        self.space_ship = space_ship
+        self.red_bullets = red_bullets
+        self.window = window
+        self.window_width = window_width
+        self.window_height = window_height
+        self.scale_window = scale_window
+        self.clock = clock
+        self.fps = fps
+        self.parent_screen = parent_screen
+        self.regen_font = regen_font
+        self.easy = easy
+        self.yellow = yellow
+        self.hard = hard
+        self.draw_stuff = draw_stuff
+        self.red_score = red_score
 
         # Variables
         self.paused = False
@@ -212,46 +248,46 @@ class Settings:
 
         # Asset Files: Buttons
         self.RESUME_BUTTON_SURFACE = pygame.image.load("assets/resume_button.png")
-        self.RESUME_BUTTON_RECT = self.RESUME_BUTTON_SURFACE.get_rect(center=self.game.WINDOW.get_rect().center)
+        self.RESUME_BUTTON_RECT = self.RESUME_BUTTON_SURFACE.get_rect(center=self.window.get_rect().center)
 
         self.RESUME_HOVER_SURFACE = pygame.image.load("assets/resume_hover.png")
         self.RESUME_HOVER_RECT = self.RESUME_HOVER_SURFACE.get_rect(center=(288, 512))
 
         self.OPTIONS_BUTTON_SURFACE = pygame.image.load("assets/button_options.png")
         self.OPTIONS_BUTTON_RECT = self.OPTIONS_BUTTON_SURFACE.get_rect(
-            topright=self.game.WINDOW.get_rect().topright)
+            topright=self.window.get_rect().topright)
 
         self.SHIP_HEALTH_BUTTON = pygame.image.load("assets/button_ship-health.png")
         self.SHIP_HEALTH_RECT = self.SHIP_HEALTH_BUTTON.get_rect(
-            center=(self.game.WINDOW_WIDTH // 2, self.game.WINDOW_HEIGHT * 0.44))
+            center=(self.window_width // 2, self.window_height * 0.44))
 
         self.SHIP_REGENERATION_BUTTON = pygame.image.load("assets/button_ship-regeneration.png")
         self.SHIP_REGENERATION_RECT = self.SHIP_REGENERATION_BUTTON.get_rect(
-            center=(self.game.WINDOW_WIDTH // 2, self.game.WINDOW_HEIGHT * 0.73))
+            center=(self.window_width // 2, self.window_height * 0.73))
 
         self.ONE_SECOND_SURFACE = pygame.image.load("assets/button_1s.png")
         self.ONE_SECOND_RECT = self.ONE_SECOND_SURFACE.get_rect(
-            center=(self.game.WINDOW_WIDTH // 2, self.game.WINDOW_HEIGHT * 0.605))
+            center=(self.window_width // 2, self.window_height * 0.605))
 
         self.TWO_SECOND_SURFACE = pygame.image.load("assets/button_2s.png")
         self.TWO_SECOND_RECT = self.TWO_SECOND_SURFACE.get_rect(
-            center=(self.game.WINDOW_WIDTH // 2, self.game.WINDOW_HEIGHT * 0.75))
+            center=(self.window_width // 2, self.window_height * 0.75))
 
         self.THREE_SECOND_SURFACE = pygame.image.load("assets/button_3s.png")
         self.THREE_SECOND_RECT = self.THREE_SECOND_SURFACE.get_rect(
-            center=(self.game.WINDOW_WIDTH // 2, self.game.WINDOW_HEIGHT * 0.9))
+            center=(self.window_width // 2, self.window_height * 0.9))
 
         self.TWENTY_FIVE_SURFACE = pygame.image.load("assets/button_25.png")
         self.TWENTY_FIVE_RECT = self.TWENTY_FIVE_SURFACE.get_rect(center=(
-            self.game.WINDOW_WIDTH // 2, self.game.WINDOW_HEIGHT * 0.44))
+            self.window_width // 2, self.window_height * 0.44))
 
         self.FIFTY_SURFACE = pygame.image.load("assets/button_50.png")
         self.FIFTY_RECT = self.FIFTY_SURFACE.get_rect(
-            center=(self.game.WINDOW_WIDTH // 2, self.game.WINDOW_HEIGHT * 0.63))
+            center=(self.window_width // 2, self.window_height * 0.63))
 
         self.SEVENTY_FIVE_SURFACE = pygame.image.load("assets/button_75.png")
         self.SEVENTY_FIVE_RECT = self.SEVENTY_FIVE_SURFACE.get_rect(
-            center=(self.game.WINDOW_WIDTH // 2, self.game.WINDOW_HEIGHT * 0.83))
+            center=(self.window_width // 2, self.window_height * 0.83))
 
     def pause_game(self):  # Handles the paused screen logic
         paused = True
@@ -275,54 +311,54 @@ class Settings:
 
             self.pause_button_click(mx, my, click)
 
-            self.game.scale_window()
-            self.game.CLOCK.tick(self.game.FPS)
+            self.scale_window()
+            self.clock.tick(self.fps)
 
     def ship_regeneration_screen(self, regen_rate):  # Draws the relevant ship regeneration buttons onscreen
-        self.game.DUMMY_WINDOW.blit(self.SHIP_REGENERATION_SURFACE, (0, 0))
-        self.game.DUMMY_WINDOW.blit(self.ONE_SECOND_SURFACE, (189, 598))
-        self.game.DUMMY_WINDOW.blit(self.TWO_SECOND_SURFACE, (160, 748))
-        self.game.DUMMY_WINDOW.blit(self.THREE_SECOND_SURFACE, (180, 898))
+        self.parent_screen.blit(self.SHIP_REGENERATION_SURFACE, (0, 0))
+        self.parent_screen.blit(self.ONE_SECOND_SURFACE, (189, 598))
+        self.parent_screen.blit(self.TWO_SECOND_SURFACE, (160, 748))
+        self.parent_screen.blit(self.THREE_SECOND_SURFACE, (180, 898))
 
-        if self.spaceship.ship_regen_1:
-            regen_text = self.game.REGEN_FONT.render(
-                f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, self.game.EASY)
+        if self.ship_regen_1:
+            regen_text = self.regen_font.render(
+                f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, self.easy)
             regen_rect = regen_text.get_rect(center=(288, 980))
-            self.game.DUMMY_WINDOW.blit(regen_text, regen_rect)
-        elif self.spaceship.ship_regen_2:
-            regen_text = self.game.REGEN_FONT.render(
-                f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, self.game.YELLOW)
+            self.parent_screen.blit(regen_text, regen_rect)
+        elif self.ship_regen_2:
+            regen_text = self.regen_font.render(
+                f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, self.yellow)
             regen_rect = regen_text.get_rect(center=(288, 980))
-            self.game.DUMMY_WINDOW.blit(regen_text, regen_rect)
-        elif self.spaceship.ship_regen_3:
-            regen_text = self.game.REGEN_FONT.render(
-                f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, self.game.HARD)
+            self.parent_screen.blit(regen_text, regen_rect)
+        elif self.ship_regen_3:
+            regen_text = self.regen_font.render(
+                f"Current Regeneration Rate: {regen_rate // 1000} seconds", True, self.hard)
             regen_rect = regen_text.get_rect(center=(288, 980))
-            self.game.DUMMY_WINDOW.blit(regen_text, regen_rect)
+            self.parent_screen.blit(regen_text, regen_rect)
 
     def regen_button_click(self, x, y, click):  # Handles the button clicks in the ship regeneration settings page
         if self.ONE_SECOND_RECT.collidepoint(x, y) and click:
-            self.spaceship.ship_regen_rate = 1000
-            self.spaceship.ship_regen_1 = True
-            self.spaceship.ship_regen_2 = False
-            self.spaceship.ship_regen_3 = False
+            self.ship_regen_rate = 1000
+            self.ship_regen_1 = True
+            self.ship_regen_2 = False
+            self.ship_regen_3 = False
 
         if self.TWO_SECOND_RECT.collidepoint(x, y) and click:
-            self.spaceship.ship_regen_rate = 2000
-            self.spaceship.ship_regen_1 = False
-            self.spaceship.ship_regen_2 = True
-            self.spaceship.ship_regen_3 = False
+            self.ship_regen_rate = 2000
+            self.ship_regen_1 = False
+            self.ship_regen_2 = True
+            self.ship_regen_3 = False
 
         if self.THREE_SECOND_RECT.collidepoint(x, y) and click:
-            self.spaceship.ship_regen_rate = 3000
-            self.spaceship.ship_regen_1 = False
-            self.spaceship.ship_regen_2 = False
-            self.spaceship.ship_regen_3 = True
+            self.ship_regen_rate = 3000
+            self.ship_regen_1 = False
+            self.ship_regen_2 = False
+            self.ship_regen_3 = True
 
     def ship_regeneration_settings(self):  # Handles the ship regeneration settings page logic
         ship_regeneration_state = True
         while ship_regeneration_state:
-            self.ship_regeneration_screen(self.spaceship.ship_regen_rate)
+            self.ship_regeneration_screen(self.ship_regen_rate)
 
             mx, my = pygame.mouse.get_pos()
 
@@ -340,53 +376,53 @@ class Settings:
 
             self.regen_button_click(mx, my, click)
 
-            self.game.scale_window()
-            self.game.CLOCK.tick(self.game.FPS)
+            self.scale_window()
+            self.clock.tick(self.fps)
 
     def ship_health_screen(self, ship_health):  # Draws the relevant ship health variables onto the settings page
-        self.game.DUMMY_WINDOW.blit(self.SHIP_HEALTH_SURFACE, (0, 0))
-        self.game.DUMMY_WINDOW.blit(self.TWENTY_FIVE_SURFACE, (170, 418))
-        self.game.DUMMY_WINDOW.blit(self.FIFTY_SURFACE, (136, 618))
-        self.game.DUMMY_WINDOW.blit(self.SEVENTY_FIVE_SURFACE, (172, 818))
+        self.parent_screen.blit(self.SHIP_HEALTH_SURFACE, (0, 0))
+        self.parent_screen.blit(self.TWENTY_FIVE_SURFACE, (170, 418))
+        self.parent_screen.blit(self.FIFTY_SURFACE, (136, 618))
+        self.parent_screen.blit(self.SEVENTY_FIVE_SURFACE, (172, 818))
 
-        if self.spaceship.ship_health_25:
-            health_text = self.game.REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, self.game.HARD)
+        if self.ship_health_25:
+            health_text = self.regen_font.render(f"Current Ship Health: {ship_health}%", True, self.hard)
             health_rect = health_text.get_rect(center=(288, 960))
-            self.game.DUMMY_WINDOW.blit(health_text, health_rect)
+            self.parent_screen.blit(health_text, health_rect)
 
-        elif self.spaceship.ship_health_50:
-            health_text = self.game.REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, self.game.YELLOW)
+        elif self.ship_health_50:
+            health_text = self.regen_font.render(f"Current Ship Health: {ship_health}%", True, self.yellow)
             health_rect = health_text.get_rect(center=(288, 960))
-            self.game.DUMMY_WINDOW.blit(health_text, health_rect)
+            self.parent_screen.blit(health_text, health_rect)
 
-        elif self.spaceship.ship_health_75:
-            health_text = self.game.REGEN_FONT.render(f"Current Ship Health: {ship_health}%", True, self.game.EASY)
+        elif self.ship_health_75:
+            health_text = self.regen_font.render(f"Current Ship Health: {ship_health}%", True, self.easy)
             health_rect = health_text.get_rect(center=(288, 960))
-            self.game.DUMMY_WINDOW.blit(health_text, health_rect)
+            self.parent_screen.blit(health_text, health_rect)
 
     def health_button_click(self, x, y, click):  # Handles the button clicks in the health settings page
         if self.TWENTY_FIVE_RECT.collidepoint(x, y) and click:
-            self.spaceship.damaged_ship_health = 25
-            self.spaceship.ship_health_25 = True
-            self.spaceship.ship_health_50 = False
-            self.spaceship.ship_health_75 = False
+            self.damaged_ship_health = 25
+            self.ship_health_25 = True
+            self.ship_health_50 = False
+            self.ship_health_75 = False
 
         if self.FIFTY_RECT.collidepoint(x, y) and click:
-            self.spaceship.damaged_ship_health = 50
-            self.spaceship.ship_health_25 = False
-            self.spaceship.ship_health_50 = True
-            self.spaceship.ship_health_75 = False
+            self.damaged_ship_health = 50
+            self.ship_health_25 = False
+            self.ship_health_50 = True
+            self.ship_health_75 = False
 
         if self.SEVENTY_FIVE_RECT.collidepoint(x, y) and click:
-            self.spaceship.damaged_ship_health = 75
-            self.spaceship.ship_health_25 = False
-            self.spaceship.ship_health_50 = False
-            self.spaceship.ship_health_75 = True
+            self.damaged_ship_health = 75
+            self.ship_health_25 = False
+            self.ship_health_50 = False
+            self.ship_health_75 = True
 
     def ship_health_settings(self):  # Handles the ship health settings logic
         ship_health_state = True
         while ship_health_state:
-            self.ship_health_screen(self.spaceship.damaged_ship_health)
+            self.ship_health_screen(self.damaged_ship_health)
 
             mx, my = pygame.mouse.get_pos()
 
@@ -404,13 +440,13 @@ class Settings:
 
             self.health_button_click(mx, my, click)
 
-            self.game.scale_window()
-            self.game.CLOCK.tick(self.game.FPS)
+            self.scale_window()
+            self.clock.tick(self.fps)
 
     def settings_screen(self):  # Shows the options screen to the player
-        self.game.DUMMY_WINDOW.blit(self.SETTINGS_SCREEN_SURFACE, (0, 0))
-        self.game.DUMMY_WINDOW.blit(self.SHIP_HEALTH_BUTTON, (165, 418))
-        self.game.DUMMY_WINDOW.blit(self.SHIP_REGENERATION_BUTTON, (96, 718))
+        self.parent_screen.blit(self.SETTINGS_SCREEN_SURFACE, (0, 0))
+        self.parent_screen.blit(self.SHIP_HEALTH_BUTTON, (165, 418))
+        self.parent_screen.blit(self.SHIP_REGENERATION_BUTTON, (96, 718))
 
     def settings_button_click(self, x, y, click):  # Handles the button clicks in the settings page
         if self.SHIP_REGENERATION_RECT.collidepoint(x, y) and click:
@@ -438,15 +474,15 @@ class Settings:
 
             self.settings_button_click(mx, my, click)
 
-            self.game.scale_window()
-            self.game.CLOCK.tick(self.game.FPS)
+            self.scale_window()
+            self.clock.tick(self.fps)
 
     def pause_game_screen(self):  # Draws the paused screen assets
-        self.game.draw_stuff(
-            self.spaceship.red, self.spaceship.red_bullets, self.game.red_score, self.spaceship.damaged_ship_health)
-        self.asteroid.draw_asteroids(self.asteroid.asteroids_list)
-        self.game.DUMMY_WINDOW.blit(self.RESUME_BUTTON_SURFACE, (82, 442))
-        self.game.DUMMY_WINDOW.blit(self.OPTIONS_BUTTON_SURFACE, (365, 10))
+        self.draw_stuff(
+            self.space_ship, self.red_bullets, self.red_score, self.damaged_ship_health)
+        self.draw_asteroids(self.asteroid_list)
+        self.parent_screen.blit(self.RESUME_BUTTON_SURFACE, (82, 442))
+        self.parent_screen.blit(self.OPTIONS_BUTTON_SURFACE, (365, 10))
 
     def pause_button_click(self, x, y, click):  # Handles the button clicks in the paused screen
         if self.OPTIONS_BUTTON_RECT.collidepoint((x, y)) and click:
@@ -461,11 +497,6 @@ class Game:
         self.ICON = pygame.image.load("assets/icon.png")
         pygame.display.set_icon(self.ICON)
 
-        # Class Imports
-        self.spaceship = spaceship
-        self.asteroid = asteroid
-        self.settings = settings
-
         # Game Constants
         self.MONITOR = pygame.display.Info()
         self.SCREEN_DIMENSIONS = (math.floor(self.MONITOR.current_w * 0.3), math.ceil(self.MONITOR.current_h * 0.948))
@@ -476,6 +507,7 @@ class Game:
         self.WINDOW_HEIGHT = self.WINDOW.get_height()
         self.FPS = 60
         self.CLOCK = pygame.time.Clock()
+        self.ASTEROID_HIT = pygame.USEREVENT + 1
 
         # Game Variables
         self.running = False
@@ -529,6 +561,24 @@ class Game:
         pygame.mixer.Sound.set_volume(self.GAME_MUSIC, 0.1)
         self.GAME_MUSIC.play(-1)
 
+        # Class Imports
+        self.spaceship = Spaceship(
+            self.ASTEROID_HIT, self.game_active, self.game_over(), self.SCORE_FONT, self.GREEN, self.YELLOW,
+            self.ORANGE, self.RED)
+        self.asteroid = Asteroid(
+            self.spaceship.damaged_ship_health, self.BACKGROUND_SURFACE, self.angle, self.DUMMY_WINDOW,
+            self.DEATH_SOUND, self.red_score, self.EXPLOSION_SURFACE, self.LASER_HIT, self.SHIP_DAMAGE)
+        self.settings = Settings(
+            self.asteroid.draw_asteroids(self.asteroid.asteroids_list), self.asteroid.asteroids_list,
+            self.spaceship.ship_regen_1, self.spaceship.ship_regen_2, self.spaceship.ship_regen_3,
+            self.spaceship.ship_regen_rate, self.spaceship.ship_health_25, self.spaceship.ship_health_50,
+            self.spaceship.ship_health_75, self.spaceship.damaged_ship_health, self.spaceship.red,
+            self.spaceship.red_bullets, self.WINDOW, self.WINDOW_WIDTH, self.WINDOW_HEIGHT, self.scale_window(),
+            self.CLOCK, self.FPS, self.DUMMY_WINDOW, self.REGEN_FONT, self.EASY, self.YELLOW, self.HARD,
+            self.draw_stuff(
+                self.spaceship.red, self.spaceship.red_bullets, self.red_score, self.spaceship.damaged_ship_health),
+            self.red_score)
+
     def scale_window(self):  # Scales the game window and assets to fit the user's monitor dimensions
         frame = pygame.transform.scale(self.DUMMY_WINDOW, self.SCREEN_DIMENSIONS)
         self.WINDOW.blit(frame, frame.get_rect())
@@ -569,7 +619,7 @@ class Game:
             if event.type == pygame.QUIT:
                 game_quit()
 
-            if event.type == self.asteroid.ASTEROID_HIT:
+            if event.type == self.ASTEROID_HIT:
                 self.asteroid.remove_asteroid(self.asteroid.asteroids_list)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r and not self.game_active:
@@ -771,12 +821,6 @@ class Game:
                 self.spaceship.red, self.spaceship.red_bullets, self.red_score, self.spaceship.damaged_ship_health)
             self.DUMMY_WINDOW.blit(self.SPACEBAR_INSTRUCTIONS, self.SPACEBAR_INSTRUCTIONS_RECT)
             self.scale_window()
-
-
-spaceship = Spaceship()
-game = Game()
-asteroid = Asteroid()
-settings = Settings()
 
 
 if __name__ == '__main__':
