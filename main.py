@@ -100,7 +100,7 @@ def handle_bullets(red_bullet, asteroid):  # Handles the bullet collision physic
             red_bullet.remove(bullet)
 
 
-def instructions_screen_1():  # Displays instructions to game screen
+def instructions_screen(image):  # Displays instructions to game screen
     instruction_state = True
     while instruction_state:
         DUMMY_WINDOW.fill(WHITE)
@@ -109,57 +109,14 @@ def instructions_screen_1():  # Displays instructions to game screen
                 instruction_state = False
             if events.type == pygame.QUIT:
                 game_quit()
-        DUMMY_WINDOW.blit(INTRO_1, (0, 0))
+        DUMMY_WINDOW.blit(image, (0, 0))
         scale_window()
 
 
-def instructions_screen_2():  # Displays instructions to game screen
-    instruction_state = True
-    while instruction_state:
-        DUMMY_WINDOW.fill(WHITE)
-        for events in pygame.event.get():
-            if events.type == pygame.KEYDOWN:
-                instruction_state = False
-            if events.type == pygame.QUIT:
-                game_quit()
-        DUMMY_WINDOW.blit(INTRO_2, (0, 0))
-        scale_window()
-
-
-def instructions_screen_3():  # Displays instructions to game screen
-    instruction_state = True
-    while instruction_state:
-        DUMMY_WINDOW.fill(WHITE)
-        for events in pygame.event.get():
-            if events.type == pygame.KEYDOWN:
-                instruction_state = False
-            if events.type == pygame.QUIT:
-                game_quit()
-        DUMMY_WINDOW.blit(INTRO_3, (0, 0))
-        scale_window()
-
-
-def instructions_screen_4():  # Displays instructions to game screen
-    instruction_state = True
-    while instruction_state:
-        DUMMY_WINDOW.fill(WHITE)
-        for events in pygame.event.get():
-            if events.type == pygame.KEYDOWN:
-                instruction_state = False
-            if events.type == pygame.QUIT:
-                game_quit()
-        DUMMY_WINDOW.blit(INTRO_4, (0, 0))
-        scale_window()
-
-
-def instructions_screen():  # Displays all the instructions to the game screen
-    instructions_screen_1()
-
-    instructions_screen_2()
-
-    instructions_screen_3()
-
-    instructions_screen_4()
+def all_instructions_screens():  # Displays all the instructions to the game screen
+    instruction_images = [INTRO_1, INTRO_2, INTRO_3, INTRO_4]
+    for image in instruction_images:
+        instructions_screen(image)
 
 
 def start_screen():  # The start screen of the game
@@ -188,13 +145,14 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevan
 
     # Ship Health
     if ship_health >= 90:
-        DUMMY_WINDOW.blit(ship_health_colour("Green", ship_health), (10, 970))
-    elif 89 >= ship_health >= 60:
-        DUMMY_WINDOW.blit(ship_health_colour("Yellow", ship_health), (10, 970))
-    elif 59 >= ship_health >= 30:
-        DUMMY_WINDOW.blit(ship_health_colour("Orange", ship_health), (10, 970))
+        health_colour = GREEN
+    elif ship_health >= 60:
+        health_colour = YELLOW
+    elif ship_health >= 30:
+        health_colour = ORANGE
     else:
-        DUMMY_WINDOW.blit(ship_health_colour("Red", ship_health), (10, 970))
+        health_colour = RED
+    DUMMY_WINDOW.blit(ship_health_colour(ship_health, health_colour), (10, 970))
 
     # Bullets
     for bullet in red_bullet:
@@ -212,19 +170,9 @@ def draw_stuff(redship, red_bullet, redscore, ship_health):  # Draws the relevan
     pygame.display.update()
 
 
-def ship_health_colour(colour_choice, health):  # Changes the colour of the ship's health depending on its value
-    if colour_choice == "Green":
-        ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, GREEN)
-        return ship_health_text
-    elif colour_choice == "Yellow":
-        ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, YELLOW)
-        return ship_health_text
-    elif colour_choice == "Orange":
-        ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, ORANGE)
-        return ship_health_text
-    elif colour_choice == "Red":
-        ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, RED)
-        return ship_health_text
+def ship_health_colour(health, colour):  # Changes the colour of the ship's health depending on its value
+    ship_health_text = SCORE_FONT.render(f"Ship Health: {health}%", True, colour)
+    return ship_health_text
 
 
 def score_display():  # Writes out high score to the game window
@@ -495,17 +443,22 @@ def active_game():  # Handles the relevant variables when a game is in session
         draw_asteroids(asteroids_list)
 
 
-def game_over():  # Displays the game over screen
+def end_screen(win):  # Displays the end screen (game over or victory)
     global red, high_score
     if not game_active:
         DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
         DUMMY_WINDOW.blit(LOGO, (60, 25))
-        DUMMY_WINDOW.blit(YOU_LOSE_SURFACE, (6, 292))
-        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 670))
-
+        
+        if win:
+            DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
+            DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
+        else:
+            DUMMY_WINDOW.blit(YOU_LOSE_SURFACE, (6, 292))
+            DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 670))
+        
         high_score = update_score(red_score, high_score)
         score_display()
-
+        
         red.center = (308, 900)
 
 
@@ -513,20 +466,6 @@ def ship_death(health):  # Causes the game session to end once the ship health r
     global game_active
     if health <= 0:
         game_active = False
-        game_over()
-
-
-def you_win():  # Displays the victory screen
-    global game_active, high_score
-    if damaged_ship_health >= 100:
-        game_active = False
-        DUMMY_WINDOW.blit(BACKGROUND_SURFACE, (0, 0))
-        DUMMY_WINDOW.blit(LOGO, (60, 25))
-        DUMMY_WINDOW.blit(YOU_WIN_SURFACE, (6, 392))
-        DUMMY_WINDOW.blit(SPACEBAR_AGAIN_INSTRUCTIONS, (6, 712))
-
-        high_score = update_score(red_score, high_score)
-        score_display()
 
 
 def running_loop():  # The main running loop that handles asteroid creation and collision among others
@@ -569,20 +508,25 @@ def main():  # The main game loop that handles the majority of the game logic
     while running:
         running_loop()
 
-        draw_stuff(red, red_bullets, red_score, damaged_ship_health)
-
-        ship_death(damaged_ship_health)
-
-        game_over()
-
-        active_game()
-
-        you_win()
-
-        keys_pressed = pygame.key.get_pressed()
-        red_handle_movement(keys_pressed, red)
-
-        handle_bullets(red_bullets, asteroid)
+        if game_active:
+            draw_stuff(red, red_bullets, red_score, damaged_ship_health)
+            
+            ship_death(damaged_ship_health)
+            
+            active_game()
+            
+            keys_pressed = pygame.key.get_pressed()
+            red_handle_movement(keys_pressed, red)
+            
+            handle_bullets(red_bullets, asteroid)
+            
+            # Check for win condition
+            if damaged_ship_health >= 100:
+                game_active = False
+        else:
+            # Determine win or loss and show end screen
+            win = damaged_ship_health >= 100
+            end_screen(win)
 
         scale_window()
 
@@ -760,11 +704,7 @@ ship_health_75 = False
 
 
 # Start of the main game...
-instructions_screen()
-
-start_screen()
-
-main()
-
 if __name__ == '__main__':
+    all_instructions_screens()
+    start_screen()
     main()
